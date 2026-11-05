@@ -1,0 +1,1395 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Communicating Performance · HealthRecon Connect</title>
+<link rel="icon" href="assets/mark-outline.png">
+<script src="cp-course-data.js"></script>
+<style>
+@font-face{font-family:"Proxima Nova";font-weight:400;font-style:normal;font-display:swap;src:url("assets/fonts/pn-400.otf") format("opentype")}
+@font-face{font-family:"Proxima Nova";font-weight:400;font-style:italic;font-display:swap;src:url("assets/fonts/pn-400i.otf") format("opentype")}
+@font-face{font-family:"Proxima Nova";font-weight:600;font-style:normal;font-display:swap;src:url("assets/fonts/pn-600.otf") format("opentype")}
+@font-face{font-family:"Proxima Nova";font-weight:600;font-style:italic;font-display:swap;src:url("assets/fonts/pn-600i.otf") format("opentype")}
+@font-face{font-family:"Proxima Nova";font-weight:700;font-style:normal;font-display:swap;src:url("assets/fonts/pn-700.otf") format("opentype")}
+@font-face{font-family:"Proxima Nova";font-weight:700;font-style:italic;font-display:swap;src:url("assets/fonts/pn-700i.otf") format("opentype")}
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:#EEF4F7;font-family:"Proxima Nova","Helvetica Neue",Arial,sans-serif;color:#26384F;-webkit-font-smoothing:antialiased}
+a{color:#0279A0}
+a:hover{color:#0B1E3A}
+button,input,textarea{font:inherit;color:inherit}
+:focus-visible{outline:3px solid #05B4E0;outline-offset:2px;border-radius:4px}
+</style>
+</helmet>
+<div style="min-height:100vh;font-family:'Proxima Nova','Helvetica Neue',Arial,sans-serif;font-size:17px;line-height:1.55;color:#26384F;background:#EEF4F7">
+  <sc-if value="{{ narrow }}" hint-placeholder-val="{{ false }}">
+    <div style="display:flex;align-items:center;gap:14px;position:sticky;top:0;z-index:20;background:#0B1E3A;padding:10px 16px">
+      <button onClick="{{ toggleNav }}" style="display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,.1);color:#FFFFFF;border:0;border-radius:999px;padding:8px 14px;min-height:40px;font-weight:700;cursor:pointer">
+        <span style="display:inline-flex;flex-direction:column;gap:3px"><i style="display:block;width:16px;height:2px;background:currentColor;border-radius:1px"></i><i style="display:block;width:16px;height:2px;background:currentColor;border-radius:1px"></i><i style="display:block;width:16px;height:2px;background:currentColor;border-radius:1px"></i></span>
+        Menu
+      </button>
+      <img src="assets/logo-light.png" alt="HealthRecon Connect" style="height:34px;width:auto;display:block">
+    </div>
+  </sc-if>
+  <sc-if value="{{ showScrim }}" hint-placeholder-val="{{ false }}">
+    <div onClick="{{ toggleNav }}" style="position:fixed;inset:0;background:rgba(11,30,58,.45);z-index:30"></div>
+  </sc-if>
+
+  <aside style="{{ sidebarStyle }}">
+    <div style="padding:20px 18px 12px 12px">
+      <img src="assets/logo-light.png" alt="HealthRecon Connect" style="width:212px;display:block">
+    </div>
+    <div style="padding:0 24px 8px;font-weight:600;color:#FFFFFF;font-size:15px;line-height:1.3">Communicating Performance</div>
+    <nav style="flex:1;padding:0 12px 12px">
+      <sc-for list="{{ groups }}" as="g" hint-placeholder-count="5">
+        <div style="margin:18px 12px 6px;font-size:13px;color:#8A97A8;font-weight:600">{{ g.label }}</div>
+        <div style="display:flex;flex-direction:column">
+          <sc-for list="{{ g.items }}" as="it" hint-placeholder-count="2">
+            <button onClick="{{ it.go }}" style="{{ it.st }}">
+              <span style="{{ it.bar }}"></span>
+              <span style="display:flex;flex-direction:column;gap:2px">
+                <span>{{ it.title }}</span>
+                <span style="{{ it.tagSt }}">{{ it.tag }}</span>
+              </span>
+            </button>
+          </sc-for>
+        </div>
+      </sc-for>
+    </nav>
+    <div style="padding:16px 24px 22px;border-top:1px solid rgba(255,255,255,.08);font-size:14px">
+      <div style="display:flex;justify-content:space-between;color:#FFFFFF;font-weight:600;margin-bottom:8px"><span>Course progress</span><span>{{ progressLabel }}</span></div>
+      <div style="height:6px;border-radius:3px;background:rgba(255,255,255,.14);overflow:hidden"><span style="{{ meterStyle }}"></span></div>
+      <div style="margin:10px 0 12px;color:#A9B8C9">Time invested: {{ timeLabel }}</div>
+      <button onClick="{{ reset }}" style="background:none;border:0;padding:0;color:#A9B8C9;text-decoration:underline;cursor:pointer;font-size:13.5px" style-hover="color:#FFFFFF">Reset my progress</button>
+    </div>
+  </aside>
+
+  <main style="{{ mainStyle }}">
+    <div style="{{ pageStyle }}">
+      <sc-if value="{{ isHero }}" hint-placeholder-val="{{ false }}">
+        <div data-hero="1" style="{{ heroStyle }}">
+          <img src="assets/mark-outline.png" alt="" aria-hidden="true" style="{{ markStyle }}">
+          <div style="position:relative;color:#2DD4C8;font-weight:600;font-size:15px;margin-bottom:14px">{{ kicker }}</div>
+          <h1 style="{{ heroH1 }}">{{ h1 }}</h1>
+        </div>
+      </sc-if>
+      <sc-if value="{{ notHero }}" hint-placeholder-val="{{ false }}">
+        <div data-hero="1" style="margin-bottom:28px">
+          <div style="font-size:14.5px;color:#5B6B80;font-weight:600;margin-bottom:8px">{{ crumb }}</div>
+          <h1 style="font-size:clamp(28px,3.4vw,38px);font-weight:700;letter-spacing:-.01em;margin:0 0 18px;color:#0B1E3A;line-height:1.2">{{ h1 }}</h1>
+          <sc-if value="{{ hasDots }}" hint-placeholder-val="{{ false }}">
+            <div style="display:flex;gap:9px;padding-left:2px;align-items:center">
+              <sc-for list="{{ dots }}" as="d" hint-placeholder-count="3">
+                <button onClick="{{ d.go }}" aria-label="{{ d.label }}" style="{{ d.st }}"></button>
+              </sc-for>
+            </div>
+          </sc-if>
+        </div>
+      </sc-if>
+
+      <sc-for list="{{ blocks }}" as="b" hint-placeholder-count="4">
+        <div data-blk="1">
+          <sc-if value="{{ b.is_lede }}" hint-placeholder-val="{{ false }}">
+            <p style="font-size:20.5px;line-height:1.45;color:#0B1E3A;margin:0 0 1em;max-width:70ch;text-wrap:pretty"><sc-for list="{{ b.segs }}" as="g"><span style="{{ g.st }}">{{ g.text }}</span></sc-for></p>
+          </sc-if>
+          <sc-if value="{{ b.is_p }}" hint-placeholder-val="{{ false }}">
+            <p style="margin:0 0 1em;max-width:70ch;text-wrap:pretty"><sc-for list="{{ b.segs }}" as="g"><span style="{{ g.st }}">{{ g.text }}</span></sc-for></p>
+          </sc-if>
+          <sc-if value="{{ b.is_h3 }}" hint-placeholder-val="{{ false }}">
+            <h3 style="font-size:21px;margin:1.4em 0 .5em;color:#0B1E3A;line-height:1.2">{{ b.text }}</h3>
+          </sc-if>
+          <sc-if value="{{ b.is_quote }}" hint-placeholder-val="{{ false }}">
+            <blockquote style="margin:0 0 1.2em;padding:14px 18px;background:#EEF4F7;border-radius:10px;color:#0B1E3A;font-style:italic;font-size:19px;max-width:70ch">{{ b.text }}</blockquote>
+          </sc-if>
+          <sc-if value="{{ b.is_list }}" hint-placeholder-val="{{ false }}">
+            <ul style="padding-left:1.25em;margin:0 0 1em;max-width:70ch">
+              <sc-for list="{{ b.items }}" as="li"><li style="margin-bottom:.35em"><sc-for list="{{ li.segs }}" as="g"><span style="{{ g.st }}">{{ g.text }}</span></sc-for></li></sc-for>
+            </ul>
+          </sc-if>
+          <sc-if value="{{ b.is_flow }}" hint-placeholder-val="{{ false }}">
+            <div style="display:flex;flex-direction:column;gap:14px;margin:0 0 1em;max-width:70ch">
+              <sc-for list="{{ b.items }}" as="li">
+                <div style="display:flex;gap:16px;align-items:flex-start">
+                  <span style="flex:none;width:32px;height:32px;border-radius:50%;background:#0B1E3A;color:#FFFFFF;font-weight:700;display:grid;place-items:center;font-size:15px">{{ li.n }}</span>
+                  <div style="padding-top:3px"><sc-for list="{{ li.segs }}" as="g"><span style="{{ g.st }}">{{ g.text }}</span></sc-for></div>
+                </div>
+              </sc-for>
+            </div>
+          </sc-if>
+          <sc-if value="{{ b.is_objectives }}" hint-placeholder-val="{{ false }}">
+            <div style="display:grid;gap:14px;margin:0 0 1em;max-width:70ch">
+              <sc-for list="{{ b.items }}" as="li">
+                <div style="display:flex;gap:16px;align-items:flex-start;padding:16px 18px;background:#EEF4F7;border-radius:10px;color:#0B1E3A">
+                  <span style="flex:none;width:12px;height:28px;margin-top:0;border-radius:3px;transform:skewY(-26deg);background:linear-gradient(160deg,#2DD4C8,#05B4E0)"></span>
+                  <span><sc-for list="{{ li.segs }}" as="g"><span style="{{ g.st }}">{{ g.text }}</span></sc-for></span>
+                </div>
+              </sc-for>
+            </div>
+          </sc-if>
+          <sc-if value="{{ b.is_callout }}" hint-placeholder-val="{{ false }}">
+            <div style="{{ b.st }}"><sc-for list="{{ b.segs }}" as="g"><span style="{{ g.st }}">{{ g.text }}</span></sc-for></div>
+          </sc-if>
+          <sc-if value="{{ b.is_assignment }}" hint-placeholder-val="{{ false }}">
+            <div style="background:#EEF4F7;border-radius:10px;padding:20px 22px;margin-bottom:24px">
+              <div style="font-size:14px;font-weight:700;color:#0279A0;margin-bottom:6px">{{ b.tag }}</div>
+              <h3 style="margin:0 0 8px;font-size:20px;color:#0B1E3A;line-height:1.25">{{ b.title }}</h3>
+              <sc-for list="{{ b.paras }}" as="pa"><p style="margin:0 0 .7em;max-width:70ch"><sc-for list="{{ pa.segs }}" as="g"><span style="{{ g.st }}">{{ g.text }}</span></sc-for></p></sc-for>
+            </div>
+          </sc-if>
+          <sc-if value="{{ b.is_cards }}" hint-placeholder-val="{{ false }}">
+            <div style="{{ b.gridSt }}">
+              <sc-for list="{{ b.items }}" as="c">
+                <div style="{{ c.st }}" style-hover="transform:translateY(-3px);box-shadow:0 10px 24px rgba(11,30,58,.10)">
+                  <div style="display:flex;align-items:center;gap:10px;font-size:15px;font-weight:700;color:#0B1E3A">
+                    <span style="{{ c.markSt }}"></span><span>{{ c.kicker }}</span>
+                  </div>
+                  <sc-if value="{{ c.title }}" hint-placeholder-val="{{ false }}"><h4 style="font-size:19px;margin:0;color:#0B1E3A;line-height:1.25">{{ c.title }}</h4></sc-if>
+                  <sc-if value="{{ c.quote }}" hint-placeholder-val="{{ false }}"><p style="margin:0;font-style:italic;color:#0B1E3A;font-size:16px;line-height:1.5">{{ c.quote }}</p></sc-if>
+                  <sc-if value="{{ c.text }}" hint-placeholder-val="{{ false }}"><p style="margin:0;font-size:15.5px;line-height:1.5">{{ c.text }}</p></sc-if>
+                  <sc-if value="{{ c.hasList }}" hint-placeholder-val="{{ false }}">
+                    <ul style="margin:0;padding-left:1.1em;font-size:15.5px">
+                      <sc-for list="{{ c.list }}" as="x"><li style="margin-bottom:5px">{{ x }}</li></sc-for>
+                    </ul>
+                  </sc-if>
+                  <sc-if value="{{ c.note }}" hint-placeholder-val="{{ false }}"><p style="margin:auto 0 0;font-size:14.5px;font-weight:600;color:#5B6B80">{{ c.note }}</p></sc-if>
+                </div>
+              </sc-for>
+            </div>
+          </sc-if>
+          <sc-if value="{{ b.is_flip }}" hint-placeholder-val="{{ false }}">
+            <div style="display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));margin:18px 0 26px">
+              <sc-for list="{{ b.items }}" as="f">
+                <button onClick="{{ f.onClick }}" aria-pressed="{{ f.pressed }}" style="perspective:1200px;background:none;border:0;padding:0;text-align:left;cursor:pointer;min-height:220px;display:grid">
+                  <div style="{{ f.inner }}">
+                    <div style="grid-area:1 / 1;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:10px;padding:18px;display:flex;flex-direction:column;background:#0B1E3A;color:#C9D6E4">
+                      <span style="width:42px;height:42px;border-radius:50%;background:rgba(45,212,200,.16);display:grid;place-items:center"><span style="width:10px;height:22px;border-radius:2px;transform:skewY(-26deg);background:linear-gradient(160deg,#2DD4C8,#05B4E0)"></span></span>
+                      <strong style="color:#FFFFFF;font-size:19px;line-height:1.2;margin-top:12px">{{ f.title }}</strong>
+                      <span style="font-size:14.5px;margin-top:4px">{{ f.sub }}</span>
+                      <span style="margin-top:auto;padding-top:14px;font-size:13px;font-weight:600;color:#2DD4C8">Select to flip</span>
+                    </div>
+                    <div style="grid-area:1 / 1;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:10px;padding:18px;display:flex;flex-direction:column;background:#E4F5F9;color:#0B1E3A;transform:rotateY(180deg);font-size:15.5px;line-height:1.45">
+                      <strong style="font-size:16px;margin-bottom:8px">{{ f.title }}</strong>
+                      <span>{{ f.back }}</span>
+                    </div>
+                  </div>
+                </button>
+              </sc-for>
+            </div>
+          </sc-if>
+          <sc-if value="{{ b.is_takeaways }}" hint-placeholder-val="{{ false }}">
+            <div style="display:grid;gap:12px;margin:0 0 22px">
+              <sc-for list="{{ b.items }}" as="t">
+                <div style="display:flex;gap:18px;align-items:baseline;padding:14px 18px;border:1px solid #DAE4EA;border-radius:10px;color:#0B1E3A;font-size:18px">
+                  <span style="font-size:28px;font-weight:700;color:#05B4E0;min-width:20px">{{ t.n }}</span>
+                  <span><strong>{{ t.title }}</strong> {{ t.text }}</span>
+                </div>
+              </sc-for>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ b.is_name }}" hint-placeholder-val="{{ false }}">
+            <div style="background:#EEF4F7;padding:20px 22px;border-radius:10px;margin:20px 0 8px;max-width:70ch">
+              <label for="cch-name" style="display:block;font-weight:600;color:#0B1E3A;margin-bottom:8px">Your name, as it should appear on your certificate</label>
+              <div style="display:flex;gap:10px;flex-wrap:wrap">
+                <input id="cch-name" value="{{ b.value }}" onChange="{{ b.onChange }}" onKeyDown="{{ b.onKey }}" autocomplete="name" style="flex:1 1 240px;min-height:46px;padding:10px 14px;border:2px solid #DAE4EA;border-radius:6px;background:#FFFFFF" style-focus="border-color:#05B4E0;outline:none">
+                <button onClick="{{ b.onSave }}" style="display:inline-flex;align-items:center;justify-content:center;min-height:46px;padding:10px 22px;border-radius:999px;border:0;background:#05B4E0;color:#0B1E3A;font-weight:700;font-size:16px;cursor:pointer" style-hover="background:#12C3EF">Save name</button>
+              </div>
+              <sc-if value="{{ b.status }}" hint-placeholder-val="{{ false }}"><p style="{{ b.statusSt }}">{{ b.status }}</p></sc-if>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ b.is_reflect }}" hint-placeholder-val="{{ false }}">
+            <div style="margin:18px 0 24px;max-width:70ch">
+              <label for="{{ b.domId }}" style="display:block;font-weight:600;color:#0B1E3A;margin-bottom:8px">{{ b.label }}</label>
+              <sc-if value="{{ b.hint }}" hint-placeholder-val="{{ false }}"><p style="font-size:14.5px;color:#5B6B80;margin:-2px 0 8px">{{ b.hint }}</p></sc-if>
+              <textarea id="{{ b.domId }}" value="{{ b.value }}" onChange="{{ b.onChange }}" onBlur="{{ b.onBlur }}" rows="{{ b.rows }}" style="width:100%;padding:12px 14px;border:2px solid #DAE4EA;border-radius:6px;resize:vertical;min-height:110px;line-height:1.5;background:#FFFFFF" style-focus="border-color:#05B4E0;outline:none"></textarea>
+              <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-top:8px">
+                <button onClick="{{ b.onSave }}" style="display:inline-flex;align-items:center;min-height:38px;padding:7px 16px;border-radius:999px;border:0;background:#0B1E3A;color:#FFFFFF;font-weight:700;font-size:15px;cursor:pointer">Save reflection</button>
+                <span style="color:#5B6B80;font-size:14.5px">{{ b.status }}</span>
+              </div>
+              <sc-if value="{{ b.showModel }}" hint-placeholder-val="{{ false }}">
+                <div style="padding:16px 20px;border-radius:10px;margin-top:14px;background:#E4F5F9;color:#0B1E3A;font-size:16px"><strong style="display:block;margin-bottom:4px">Compare with a model answer</strong>{{ b.model }}</div>
+              </sc-if>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ b.is_poll }}" hint-placeholder-val="{{ false }}">
+            <div style="margin:18px 0 26px;padding:26px 28px;border:1px solid #DAE4EA;border-radius:16px;background:#FFFFFF">
+              <p style="margin:0 0 16px;font-weight:700;color:#0B1E3A;font-size:18px">{{ b.q }}</p>
+              <div style="display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(190px,1fr))">
+                <sc-for list="{{ b.opts }}" as="o">
+                  <button onClick="{{ o.onClick }}" aria-pressed="{{ o.pressed }}" style="{{ o.st }}">
+                    <strong style="font-size:16.5px">{{ o.title }}</strong>
+                    <span style="{{ o.subSt }}">{{ o.sub }}</span>
+                  </button>
+                </sc-for>
+              </div>
+              <sc-if value="{{ b.hasFb }}" hint-placeholder-val="{{ false }}">
+                <div style="margin-top:16px;padding:16px 20px;border-radius:10px;background:#E4F5F9;color:#0B1E3A"><sc-for list="{{ b.fb }}" as="g"><span style="{{ g.st }}">{{ g.text }}</span></sc-for></div>
+              </sc-if>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ b.is_table }}" hint-placeholder-val="{{ false }}">
+            <div style="margin:18px 0 26px;overflow-x:auto;border:1px solid #DAE4EA;border-radius:10px">
+              <div style="{{ b.wrapSt }}">
+                <div style="{{ b.headSt }}"><sc-for list="{{ b.head }}" as="hd"><div style="padding:10px 14px;font-weight:600;font-size:14px;color:#FFFFFF;line-height:1.3">{{ hd.text }}</div></sc-for></div>
+                <sc-for list="{{ b.rows }}" as="r"><div style="{{ r.st }}"><sc-for list="{{ r.cells }}" as="c"><div style="{{ c.st }}">{{ c.text }}</div></sc-for></div></sc-for>
+              </div>
+            </div>
+            <sc-if value="{{ b.hasCaption }}" hint-placeholder-val="{{ false }}"><p style="margin:-14px 0 22px;font-size:15px;color:#5B6B80;max-width:70ch;text-wrap:pretty">{{ b.caption }}</p></sc-if>
+          </sc-if>
+          <sc-if value="{{ b.is_lob }}" hint-placeholder-val="{{ false }}">
+            <div style="background:#EEF4F7;padding:20px 22px;border-radius:10px;margin:20px 0 8px">
+              <p style="margin:0 0 4px;font-weight:600;color:#0B1E3A">Your line of business</p>
+              <p style="margin:0 0 14px;font-size:15.5px;color:#5B6B80">{{ b.status }}</p>
+              <div role="radiogroup" aria-label="Your line of business" style="display:grid;gap:8px;grid-template-columns:repeat(auto-fill,minmax(190px,1fr))">
+                <sc-for list="{{ b.items }}" as="l"><button type="button" role="radio" aria-checked="{{ l.pressed }}" onClick="{{ l.onClick }}" style="{{ l.st }}">{{ l.name }}</button></sc-for>
+              </div>
+            </div>
+          </sc-if>
+          <sc-if value="{{ b.is_lobbar }}" hint-placeholder-val="{{ false }}">
+            <div style="display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px;padding:12px 16px;border-radius:10px;background:#E4F5F9;margin:0 0 22px">
+              <label for="{{ b.domId }}" style="font-size:15.5px;font-weight:600;color:#0B1E3A">Scenarios on this page are for</label>
+              <select id="{{ b.domId }}" value="{{ b.value }}" onChange="{{ b.onChange }}" style="min-height:44px;padding:8px 14px;border:2px solid #DAE4EA;border-radius:999px;background:#FFFFFF;color:#0B1E3A;font-family:inherit;font-size:15.5px;font-weight:600;cursor:pointer">
+                <sc-for list="{{ b.opts }}" as="op"><option value="{{ op.value }}">{{ op.label }}</option></sc-for>
+              </select>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ b.is_av }}" hint-placeholder-val="{{ false }}">
+            <div style="margin:22px 0 30px">
+              <div style="display:flex;flex-direction:column;gap:2px;margin-bottom:12px">
+                <span style="font-size:14px;font-weight:700;color:#0279A0">{{ b.kicker }}</span>
+                <h3 style="font-size:22px;margin:0;color:#0B1E3A;line-height:1.2">{{ b.title }}</h3>
+              </div>
+              <div style="{{ b.stageSt }}">
+                <img src="assets/mark-outline.png" alt="" aria-hidden="true" style="position:absolute;right:-50px;top:-20px;height:125%;width:auto;opacity:.12;pointer-events:none">
+                <div style="position:relative;display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:46px">
+                  <sc-if value="{{ b.hasWho }}" hint-placeholder-val="{{ false }}">
+                    <div style="display:flex;align-items:center;gap:12px">
+                      <span style="{{ b.avatarSt }}">{{ b.whoInitials }}</span>
+                      <span style="display:flex;flex-direction:column;line-height:1.25">
+                        <strong style="color:#FFFFFF;font-size:16px">{{ b.whoName }}</strong>
+                        <span style="font-size:13.5px;color:#A9B8C9">{{ b.whoRole }}</span>
+                      </span>
+                    </div>
+                  </sc-if>
+                  <sc-if value="{{ b.noWho }}" hint-placeholder-val="{{ false }}">
+                    <div style="display:flex;gap:8px;flex-wrap:wrap">
+                      <sc-for list="{{ b.cast }}" as="c">
+                        <span style="display:flex;align-items:center;gap:8px;padding:4px 12px 4px 4px;border-radius:999px;background:rgba(255,255,255,.08);font-size:13.5px;color:#DCE6F0">
+                          <span style="{{ c.st }}">{{ c.initials }}</span>{{ c.name }}
+                        </span>
+                      </sc-for>
+                    </div>
+                  </sc-if>
+                  <span style="{{ b.statusSt }}">{{ b.statusLabel }}</span>
+                </div>
+                <div style="position:relative;flex:1;display:flex;align-items:center;padding:18px 0">
+                  <div style="{{ b.beatSt }}">{{ b.beat }}</div>
+                </div>
+                <div style="position:relative;display:flex;flex-direction:column;gap:12px">
+                  <div style="background:rgba(255,255,255,.08);border-radius:10px;padding:12px 16px;font-size:17px;line-height:1.45;color:#FFFFFF;min-height:52px">
+                    <sc-if value="{{ b.capWho }}" hint-placeholder-val="{{ false }}"><strong style="color:#2DD4C8">{{ b.capWho }}: </strong></sc-if>{{ b.caption }}
+                  </div>
+                  <div style="display:flex;gap:4px">
+                    <sc-for list="{{ b.segs }}" as="x"><span style="{{ x.st }}"></span></sc-for>
+                  </div>
+                </div>
+              </div>
+              <div style="display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-top:12px">
+                <button onClick="{{ b.onToggle }}" style="display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:10px 22px;border-radius:999px;border:0;background:#05B4E0;color:#0B1E3A;font-weight:700;font-size:16px;cursor:pointer" style-hover="background:#12C3EF"><span aria-hidden="true">{{ b.playIcon }}</span>{{ b.playLabel }}</button>
+                <sc-if value="{{ b.canRestart }}" hint-placeholder-val="{{ false }}">
+                  <button onClick="{{ b.onRestart }}" style="display:inline-flex;align-items:center;min-height:44px;padding:10px 18px;border-radius:999px;border:2px solid #DAE4EA;background:#FFFFFF;color:#0B1E3A;font-weight:700;font-size:15px;cursor:pointer" style-hover="border-color:#05B4E0">Restart</button>
+                </sc-if>
+                <button onClick="{{ b.onTranscript }}" aria-expanded="{{ b.tOpenAttr }}" style="display:inline-flex;align-items:center;min-height:44px;padding:10px 18px;border-radius:999px;border:2px solid #DAE4EA;background:#FFFFFF;color:#0B1E3A;font-weight:700;font-size:15px;cursor:pointer" style-hover="border-color:#05B4E0">{{ b.tLabel }}</button>
+                <span style="margin-left:auto;font-size:14px;font-weight:600;color:#5B6B80">{{ b.progress }}</span>
+              </div>
+              <sc-if value="{{ b.note }}" hint-placeholder-val="{{ false }}">
+                <div style="display:flex;flex-wrap:wrap;align-items:center;gap:6px 12px;margin:8px 0 0;font-size:14px;color:#5B6B80">
+                  <span>{{ b.note }}</span>
+                  <sc-if value="{{ b.canPreview }}" hint-placeholder-val="{{ false }}"><button onClick="{{ b.onPreview }}" style="background:none;border:0;padding:0;color:#0279A0;font-weight:600;text-decoration:underline;cursor:pointer;font-size:14px">{{ b.previewLabel }}</button></sc-if>
+                </div>
+              </sc-if>
+              <sc-if value="{{ b.tOpen }}" hint-placeholder-val="{{ false }}">
+                <div style="margin-top:14px;border:1px solid #DAE4EA;border-radius:10px;padding:16px 18px;display:grid;gap:10px;background:#FAFCFD">
+                  <sc-for list="{{ b.transcript }}" as="t">
+                    <div style="{{ t.st }}"><strong style="color:#0B1E3A;flex:none;min-width:110px">{{ t.name }}</strong><span>{{ t.text }}</span></div>
+                  </sc-for>
+                  <label style="display:flex;gap:12px;align-items:flex-start;padding:10px 12px;border-radius:10px;background:#EEF4F7;cursor:pointer;font-weight:600;color:#0B1E3A;margin-top:4px">
+                    <input type="checkbox" checked="{{ b.read }}" onChange="{{ b.onRead }}" style="width:20px;height:20px;accent-color:#0B1E3A;flex:none;margin-top:1px">
+                    I’ve read the transcript instead of listening
+                  </label>
+                </div>
+              </sc-if>
+              <sc-if value="{{ b.showAsk }}" hint-placeholder-val="{{ false }}">
+                <div style="margin-top:16px;padding:20px 22px;border:1px solid #DAE4EA;border-radius:16px;background:#FFFFFF">
+                  <p style="margin:0 0 12px;font-weight:700;color:#0B1E3A;font-size:17.5px">{{ b.askQ }}</p>
+                  <div style="display:grid;gap:8px">
+                    <sc-for list="{{ b.askOpts }}" as="o">
+                      <button onClick="{{ o.onClick }}" style="{{ o.st }}"><span style="flex:none;width:28px;height:28px;border-radius:50%;background:#0B1E3A;color:#FFFFFF;display:grid;place-items:center;font-weight:700;font-size:14px">{{ o.letter }}</span><span>{{ o.text }}</span></button>
+                    </sc-for>
+                  </div>
+                  <sc-if value="{{ b.askFb }}" hint-placeholder-val="{{ false }}"><div style="{{ b.askFbSt }}">{{ b.askFb }}</div></sc-if>
+                </div>
+              </sc-if>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ b.is_buckets }}" hint-placeholder-val="{{ false }}">
+            <div style="{{ b.actSt }}">
+              <h3 style="font-size:22px;margin:0 0 6px;color:#0B1E3A">{{ b.title }}</h3>
+              <p style="color:#5B6B80;margin:0 0 18px;max-width:70ch">{{ b.inst }}</p>
+              <div onClick="{{ b.onTray }}" onDragOver="{{ b.onOver }}" onDrop="{{ b.onTrayDrop }}" style="{{ b.trayStyle }}">
+                <p style="font-size:14px;font-weight:700;color:#5B6B80;margin:0 0 10px">{{ b.trayLabel }}</p>
+                <div style="display:flex;flex-wrap:wrap;gap:8px">
+                  <sc-for list="{{ b.tray }}" as="c">
+                    <button draggable="true" onDragStart="{{ c.onDrag }}" onClick="{{ c.onClick }}" style="{{ c.st }}">{{ c.text }}</button>
+                  </sc-for>
+                </div>
+              </div>
+              <div style="{{ b.gridSt }}">
+                <sc-for list="{{ b.buckets }}" as="k">
+                  <div onClick="{{ k.onClick }}" onDragOver="{{ b.onOver }}" onDrop="{{ k.onDrop }}" style="{{ k.st }}">
+                    <div style="display:flex;flex-direction:column;margin-bottom:10px">
+                      <strong style="color:#0B1E3A;font-size:16.5px">{{ k.title }}</strong>
+                      <span style="font-size:13.5px;color:#5B6B80;font-weight:600">{{ k.sub }}</span>
+                    </div>
+                    <div style="display:flex;flex-direction:column;gap:8px">
+                      <sc-for list="{{ k.chips }}" as="c">
+                        <button draggable="true" onDragStart="{{ c.onDrag }}" onClick="{{ c.onClick }}" style="{{ c.st }}">
+                          {{ c.text }}
+                          <sc-if value="{{ c.why }}" hint-placeholder-val="{{ false }}"><span style="{{ c.whySt }}">{{ c.why }}</span></sc-if>
+                        </button>
+                      </sc-for>
+                    </div>
+                  </div>
+                </sc-for>
+              </div>
+              <div style="display:flex;flex-wrap:wrap;align-items:center;gap:12px;margin-top:18px">
+                <sc-if value="{{ b.canCheck }}" hint-placeholder-val="{{ false }}">
+                  <button onClick="{{ b.onCheck }}" style="display:inline-flex;align-items:center;min-height:44px;padding:10px 20px;border-radius:999px;border:0;background:#05B4E0;color:#0B1E3A;font-weight:700;font-size:16px;cursor:pointer">Check my answers</button>
+                </sc-if>
+                <button onClick="{{ b.onReset }}" style="display:inline-flex;align-items:center;min-height:44px;padding:10px 20px;border-radius:999px;border:2px solid #DAE4EA;background:#FFFFFF;color:#0B1E3A;font-weight:700;font-size:16px;cursor:pointer" style-hover="border-color:#05B4E0">Start again</button>
+                <sc-if value="{{ b.status }}" hint-placeholder-val="{{ false }}"><p style="{{ b.statusSt }}">{{ b.status }}</p></sc-if>
+                <sc-if value="{{ b.done }}" hint-placeholder-val="{{ false }}">
+                  <div style="flex-basis:100%;background:#0B1E3A;color:#DCE6F0;border-radius:10px;padding:20px 24px">
+                    <h3 style="color:#2DD4C8;font-size:17px;margin:0 0 10px;display:flex;align-items:center;gap:12px"><span style="width:9px;height:20px;border-radius:2px;transform:skewY(-26deg);background:linear-gradient(160deg,#2DD4C8,#05B4E0)"></span>Coaching key points</h3>
+                    <ul style="margin:0;padding-left:1.2em"><sc-for list="{{ b.kp }}" as="x"><li style="margin-bottom:6px">{{ x }}</li></sc-for></ul>
+                  </div>
+                </sc-if>
+              </div>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ b.is_seq }}" hint-placeholder-val="{{ false }}">
+            <div style="{{ b.actSt }}">
+              <h3 style="font-size:22px;margin:0 0 6px;color:#0B1E3A">{{ b.title }}</h3>
+              <p style="color:#5B6B80;margin:0 0 18px;max-width:70ch">{{ b.inst }}</p>
+              <div style="display:grid;gap:8px">
+                <sc-for list="{{ b.rows }}" as="r">
+                  <button onClick="{{ r.onClick }}" style="{{ r.st }}">
+                    <span style="{{ r.dotSt }}">{{ r.num }}</span>
+                    <span>{{ r.text }}</span>
+                  </button>
+                </sc-for>
+              </div>
+              <div style="display:flex;flex-wrap:wrap;align-items:center;gap:12px;margin-top:18px">
+                <sc-if value="{{ b.canCheck }}" hint-placeholder-val="{{ false }}">
+                  <button onClick="{{ b.onCheck }}" style="display:inline-flex;align-items:center;min-height:44px;padding:10px 20px;border-radius:999px;border:0;background:#05B4E0;color:#0B1E3A;font-weight:700;font-size:16px;cursor:pointer">Check my order</button>
+                </sc-if>
+                <button onClick="{{ b.onReset }}" style="display:inline-flex;align-items:center;min-height:44px;padding:10px 20px;border-radius:999px;border:2px solid #DAE4EA;background:#FFFFFF;color:#0B1E3A;font-weight:700;font-size:16px;cursor:pointer" style-hover="border-color:#05B4E0">Clear</button>
+                <sc-if value="{{ b.status }}" hint-placeholder-val="{{ false }}"><p style="{{ b.statusSt }}">{{ b.status }}</p></sc-if>
+                <sc-if value="{{ b.done }}" hint-placeholder-val="{{ false }}">
+                  <div style="flex-basis:100%;background:#0B1E3A;color:#DCE6F0;border-radius:10px;padding:20px 24px">
+                    <h3 style="color:#2DD4C8;font-size:17px;margin:0 0 10px;display:flex;align-items:center;gap:12px"><span style="width:9px;height:20px;border-radius:2px;transform:skewY(-26deg);background:linear-gradient(160deg,#2DD4C8,#05B4E0)"></span>Coaching key points</h3>
+                    <ul style="margin:0;padding-left:1.2em"><sc-for list="{{ b.kp }}" as="x"><li style="margin-bottom:6px">{{ x }}</li></sc-for></ul>
+                  </div>
+                </sc-if>
+              </div>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ b.is_sim }}" hint-placeholder-val="{{ false }}">
+            <div style="{{ b.actSt }}">
+              <h3 style="font-size:22px;margin:0 0 12px;color:#0B1E3A">{{ b.title }}</h3>
+              <div style="font-size:17.5px;background:#EEF4F7;padding:16px 18px;border-radius:10px;color:#0B1E3A;margin-bottom:18px">{{ b.intro }}</div>
+              <sc-if value="{{ b.running }}" hint-placeholder-val="{{ false }}">
+                <div>
+                  <p style="font-weight:700;color:#5B6B80;font-size:14px;margin:0 0 8px">{{ b.progress }}</p>
+                  <div style="display:flex;gap:6px;margin-bottom:18px;padding-left:2px">
+                    <sc-for list="{{ b.bars }}" as="x"><span style="{{ x.st }}"></span></sc-for>
+                  </div>
+                  <sc-if value="{{ b.hasPerson }}" hint-placeholder-val="{{ false }}">
+                    <div style="display:flex;align-items:center;gap:14px;margin:0 0 12px">
+                      <span style="{{ b.personSt }}"></span>
+                      <span style="display:flex;flex-direction:column;line-height:1.25"><strong style="color:#0B1E3A;font-size:17px">{{ b.personName }}</strong><span style="color:#5B6B80;font-size:14.5px">{{ b.personRole }}</span></span>
+                    </div>
+                  </sc-if>
+                  <p style="font-weight:700;color:#0B1E3A;font-size:18px;margin:0 0 12px">{{ b.sit }}</p>
+                  <div style="display:grid;gap:10px">
+                    <sc-for list="{{ b.opts }}" as="o">
+                      <button onClick="{{ o.onClick }}" disabled="{{ o.disabled }}" style="{{ o.st }}">
+                        <span style="flex:none;width:28px;height:28px;border-radius:50%;background:#0B1E3A;color:#FFFFFF;display:grid;place-items:center;font-weight:700;font-size:14px">{{ o.letter }}</span>
+                        <span>{{ o.text }}</span>
+                      </button>
+                    </sc-for>
+                  </div>
+                  <sc-if value="{{ b.fb }}" hint-placeholder-val="{{ false }}"><div style="{{ b.fbSt }}"><strong>{{ b.fbHead }}</strong> {{ b.fb }}</div></sc-if>
+                  <sc-if value="{{ b.canNext }}" hint-placeholder-val="{{ false }}">
+                    <button onClick="{{ b.onNext }}" style="display:inline-flex;align-items:center;min-height:44px;padding:10px 20px;border-radius:999px;border:0;background:#05B4E0;color:#0B1E3A;font-weight:700;font-size:16px;cursor:pointer;margin-top:14px">{{ b.nextLabel }}</button>
+                  </sc-if>
+                </div>
+              </sc-if>
+              <sc-if value="{{ b.done }}" hint-placeholder-val="{{ false }}">
+                <div>
+                  <div style="padding:14px 18px;border-radius:10px;background:#D5F5E7;color:#0E5E3E;font-size:16px;margin-bottom:14px"><strong>{{ b.doneHead }}</strong> Here is the path you took:</div>
+                  <ol style="padding-left:1.3em;margin:0 0 18px">
+                    <sc-for list="{{ b.path }}" as="x"><li style="margin-bottom:8px;color:#0B1E3A">{{ x }}</li></sc-for>
+                  </ol>
+                  <div style="background:#0B1E3A;color:#DCE6F0;border-radius:10px;padding:20px 24px">
+                    <h3 style="color:#2DD4C8;font-size:17px;margin:0 0 10px;display:flex;align-items:center;gap:12px"><span style="width:9px;height:20px;border-radius:2px;transform:skewY(-26deg);background:linear-gradient(160deg,#2DD4C8,#05B4E0)"></span>Coaching key points</h3>
+                    <ul style="margin:0;padding-left:1.2em"><sc-for list="{{ b.kp }}" as="x"><li style="margin-bottom:6px">{{ x }}</li></sc-for></ul>
+                  </div>
+                  <button onClick="{{ b.onReset }}" style="display:inline-flex;align-items:center;min-height:44px;padding:10px 20px;border-radius:999px;border:2px solid #DAE4EA;background:#FFFFFF;color:#0B1E3A;font-weight:700;font-size:16px;cursor:pointer;margin-top:16px" style-hover="border-color:#05B4E0">{{ b.replayLbl }}</button>
+                </div>
+              </sc-if>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ b.is_hunt }}" hint-placeholder-val="{{ false }}">
+            <div style="{{ b.actSt }}">
+              <h3 style="font-size:22px;margin:0 0 6px;color:#0B1E3A">{{ b.title }}</h3>
+              <p style="color:#5B6B80;margin:0 0 18px;max-width:70ch">{{ b.inst }}</p>
+              <div style="border:1px solid #DAE4EA;border-radius:10px;padding:14px;background:#FAFCFD;display:grid;gap:6px">
+                <sc-for list="{{ b.lines }}" as="l">
+                  <button onClick="{{ l.onClick }}" disabled="{{ l.disabled }}" style="{{ l.st }}">
+                    <sc-if value="{{ l.label }}" hint-placeholder-val="{{ false }}"><span style="flex:none;width:64px;font-size:13.5px;font-weight:700;color:#5B6B80">{{ l.label }}</span></sc-if>
+                    <span>{{ l.text }}</span>
+                  </button>
+                </sc-for>
+              </div>
+              <div style="display:flex;flex-wrap:wrap;align-items:center;gap:12px;margin-top:18px">
+                <p style="margin:0;font-weight:600;color:#5B6B80;flex-basis:100%">{{ b.count }}</p>
+                <sc-if value="{{ b.fb }}" hint-placeholder-val="{{ false }}"><div style="{{ b.fbSt }}">{{ b.fb }}</div></sc-if>
+                <button onClick="{{ b.onReset }}" style="display:inline-flex;align-items:center;min-height:44px;padding:10px 20px;border-radius:999px;border:2px solid #DAE4EA;background:#FFFFFF;color:#0B1E3A;font-weight:700;font-size:16px;cursor:pointer" style-hover="border-color:#05B4E0">Start again</button>
+                <sc-if value="{{ b.done }}" hint-placeholder-val="{{ false }}">
+                  <div style="flex-basis:100%;background:#0B1E3A;color:#DCE6F0;border-radius:10px;padding:20px 24px">
+                    <h3 style="color:#2DD4C8;font-size:17px;margin:0 0 10px;display:flex;align-items:center;gap:12px"><span style="width:9px;height:20px;border-radius:2px;transform:skewY(-26deg);background:linear-gradient(160deg,#2DD4C8,#05B4E0)"></span>Coaching key points</h3>
+                    <ul style="margin:0;padding-left:1.2em"><sc-for list="{{ b.kp }}" as="x"><li style="margin-bottom:6px">{{ x }}</li></sc-for></ul>
+                  </div>
+                </sc-if>
+              </div>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ b.is_selfcheck }}" hint-placeholder-val="{{ false }}">
+            <div style="{{ b.actSt }}">
+              <h3 style="font-size:22px;margin:0 0 6px;color:#0B1E3A">{{ b.title }}</h3>
+              <p style="color:#5B6B80;margin:0 0 18px;max-width:70ch">{{ b.inst }}</p>
+              <div style="display:grid;gap:8px">
+                <sc-for list="{{ b.rows }}" as="r">
+                  <div style="{{ b.rowSt }}">
+                    <span style="color:#0B1E3A">{{ r.text }}</span>
+                    <div style="display:flex;flex:none;align-self:flex-start;border-radius:999px;background:#FFFFFF;padding:3px;border:1px solid #DAE4EA">
+                      <sc-for list="{{ r.opts }}" as="o"><button onClick="{{ o.onClick }}" aria-pressed="{{ o.pressed }}" style="{{ o.st }}">{{ o.label }}</button></sc-for>
+                    </div>
+                  </div>
+                </sc-for>
+              </div>
+              <div style="display:flex;flex-wrap:wrap;gap:12px;margin-top:18px">
+                <p style="margin:0;font-weight:600;color:#5B6B80;flex-basis:100%">{{ b.count }}</p>
+                <sc-if value="{{ b.done }}" hint-placeholder-val="{{ false }}">
+                  <div style="flex-basis:100%;display:grid;gap:12px">
+                    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px">
+                      <sc-for list="{{ b.meter }}" as="m"><span style="{{ m.st }}">{{ m.label }}</span></sc-for>
+                    </div>
+                    <div style="background:#0B1E3A;color:#DCE6F0;border-radius:10px;padding:20px 24px">
+                      <h3 style="color:#2DD4C8;font-size:17px;margin:0 0 8px;display:flex;align-items:center;gap:12px"><span style="width:9px;height:20px;border-radius:2px;transform:skewY(-26deg);background:linear-gradient(160deg,#2DD4C8,#05B4E0)"></span>{{ b.band }} · {{ b.score }}</h3>
+                      <p style="margin:0">{{ b.bandText }}</p>
+                    </div>
+                  </div>
+                </sc-if>
+              </div>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ b.is_profile }}" hint-placeholder-val="{{ false }}">
+            <div style="{{ b.actSt }}">
+              <h3 style="font-size:22px;margin:0 0 6px;color:#0B1E3A">{{ b.title }}</h3>
+              <p style="color:#5B6B80;margin:0 0 18px;max-width:70ch">{{ b.inst }}</p>
+              <sc-if value="{{ b.running }}" hint-placeholder-val="{{ false }}">
+                <div>
+                  <p style="font-weight:700;color:#5B6B80;font-size:14px;margin:0 0 8px">{{ b.progress }}</p>
+                  <div style="display:flex;gap:6px;margin-bottom:18px;padding-left:2px"><sc-for list="{{ b.bars }}" as="x"><span style="{{ x.st }}"></span></sc-for></div>
+                  <p style="font-weight:700;color:#0B1E3A;font-size:18px;margin:0 0 12px">{{ b.sit }}</p>
+                  <div style="display:grid;gap:10px">
+                    <sc-for list="{{ b.opts }}" as="o">
+                      <button onClick="{{ o.onClick }}" aria-pressed="{{ o.pressed }}" style="{{ o.st }}">
+                        <span style="flex:none;width:28px;height:28px;border-radius:50%;background:#0B1E3A;color:#FFFFFF;display:grid;place-items:center;font-weight:700;font-size:14px">{{ o.letter }}</span>
+                        <span>{{ o.text }}</span>
+                      </button>
+                    </sc-for>
+                  </div>
+                  <div style="display:flex;justify-content:space-between;gap:12px;margin-top:16px">
+                    <button onClick="{{ b.onPrev }}" disabled="{{ b.prevDisabled }}" style="{{ b.prevSt }}">Previous</button>
+                    <button onClick="{{ b.onNext }}" disabled="{{ b.nextDisabled }}" style="{{ b.nextSt }}">{{ b.nextLabel }}</button>
+                  </div>
+                </div>
+              </sc-if>
+              <sc-if value="{{ b.done }}" hint-placeholder-val="{{ false }}">
+                <div>
+                  <div style="background:#0B1E3A;border-radius:12px;padding:24px 26px;margin-bottom:18px">
+                    <p style="margin:0 0 6px;color:#2DD4C8;font-weight:700;font-size:15px">{{ b.resKicker }}</p>
+                    <p style="margin:0;font-size:32px;font-weight:700;line-height:1.15;color:#FFFFFF">{{ b.resName }}</p>
+                    <p style="margin:8px 0 0;color:#DCE6F0;font-style:italic">{{ b.resMotto }}</p>
+                  </div>
+                  <div style="display:grid;gap:10px;margin-bottom:20px">
+                    <sc-for list="{{ b.bars2 }}" as="r"><div style="display:grid;grid-template-columns:100px minmax(0,1fr) 24px;gap:10px;align-items:center;font-weight:600;color:#0B1E3A;font-size:15.5px"><span>{{ r.name }}</span><span style="display:block;height:14px;background:#EEF4F7;border-radius:999px;overflow:hidden"><span data-grow="1" style="{{ r.st }}"></span></span><span>{{ r.n }}</span></div></sc-for>
+                  </div>
+                  <div style="display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(210px,1fr))">
+                    <sc-for list="{{ b.panels }}" as="p"><div style="background:#EEF4F7;border-radius:10px;padding:16px 18px"><p style="margin:0 0 6px;font-weight:700;color:#0B1E3A">{{ p.h }}</p><p style="margin:0;font-size:15.5px">{{ p.text }}</p></div></sc-for>
+                  </div>
+                  <sc-if value="{{ b.blendNote }}" hint-placeholder-val="{{ false }}"><p style="color:#5B6B80;font-size:15px;margin:14px 0 0;max-width:70ch">{{ b.blendNote }}</p></sc-if>
+                  <div style="background:#0B1E3A;color:#DCE6F0;border-radius:10px;padding:20px 24px;margin-top:18px">
+                    <h3 style="color:#2DD4C8;font-size:17px;margin:0 0 10px;display:flex;align-items:center;gap:12px"><span style="width:9px;height:20px;border-radius:2px;transform:skewY(-26deg);background:linear-gradient(160deg,#2DD4C8,#05B4E0)"></span>Coaching key points</h3>
+                    <ul style="margin:0;padding-left:1.2em"><sc-for list="{{ b.kp }}" as="x"><li style="margin-bottom:6px">{{ x }}</li></sc-for></ul>
+                  </div>
+                  <button onClick="{{ b.onReset }}" style="display:inline-flex;align-items:center;min-height:44px;padding:10px 20px;border-radius:999px;border:2px solid #DAE4EA;background:#FFFFFF;color:#0B1E3A;font-weight:700;font-size:16px;cursor:pointer;margin-top:16px" style-hover="border-color:#05B4E0">Retake</button>
+                </div>
+              </sc-if>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ b.is_quiz }}" hint-placeholder-val="{{ false }}">
+            <div style="margin:26px 0;padding:26px 28px;border:2px solid #0B1E3A;border-radius:16px;background:#FFFFFF">
+              <sc-for list="{{ b.qs }}" as="q">
+                <fieldset style="border:0;margin:0 0 22px;padding:0;min-width:0">
+                  <legend style="display:flex;gap:12px;font-weight:700;color:#0B1E3A;font-size:17.5px;margin-bottom:10px;padding:0;line-height:1.35">
+                    <span style="flex:none;width:28px;height:28px;border-radius:50%;background:#EEF4F7;display:grid;place-items:center;font-size:14px;color:#0B1E3A">{{ q.n }}</span>
+                    <span>{{ q.q }}</span>
+                  </legend>
+                  <sc-for list="{{ q.opts }}" as="o">
+                    <label style="{{ o.st }}">
+                      <input type="radio" name="{{ q.name }}" checked="{{ o.checked }}" onChange="{{ o.onChange }}" disabled="{{ q.locked }}" style="margin-top:4px;accent-color:#0B1E3A;width:18px;height:18px;flex:none">
+                      <span>{{ o.text }}</span>
+                    </label>
+                  </sc-for>
+                  <sc-if value="{{ q.fb }}" hint-placeholder-val="{{ false }}"><div style="{{ q.fbSt }}">{{ q.fb }}</div></sc-if>
+                </fieldset>
+              </sc-for>
+              <div style="display:flex;flex-wrap:wrap;gap:12px;align-items:center">
+                <sc-if value="{{ b.canSubmit }}" hint-placeholder-val="{{ false }}">
+                  <button onClick="{{ b.onSubmit }}" style="display:inline-flex;align-items:center;min-height:44px;padding:10px 20px;border-radius:999px;border:0;background:#05B4E0;color:#0B1E3A;font-weight:700;font-size:16px;cursor:pointer">Submit my answers</button>
+                </sc-if>
+                <sc-if value="{{ b.submitted }}" hint-placeholder-val="{{ false }}">
+                  <button onClick="{{ b.onRetake }}" style="display:inline-flex;align-items:center;min-height:44px;padding:10px 20px;border-radius:999px;border:2px solid #DAE4EA;background:#FFFFFF;color:#0B1E3A;font-weight:700;font-size:16px;cursor:pointer">Retake the check</button>
+                </sc-if>
+                <sc-if value="{{ b.err }}" hint-placeholder-val="{{ false }}"><p style="color:#9B1B3F;font-weight:600;font-size:15px;margin:0;flex-basis:100%">{{ b.err }}</p></sc-if>
+                <sc-if value="{{ b.score }}" hint-placeholder-val="{{ false }}"><div style="{{ b.scoreSt }}"><strong>{{ b.score }}</strong> {{ b.scoreText }}</div></sc-if>
+              </div>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ b.is_results }}" hint-placeholder-val="{{ false }}">
+            <div>
+              <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin-bottom:26px">
+                <sc-for list="{{ b.stats }}" as="x">
+                  <div style="background:#0B1E3A;border-radius:10px;padding:18px;display:flex;flex-direction:column;gap:4px">
+                    <span style="font-size:30px;font-weight:700;color:#FFFFFF;line-height:1.1">{{ x.v }}</span>
+                    <span style="color:#A9B8C9;font-size:14.5px;font-weight:600">{{ x.l }}</span>
+                  </div>
+                </sc-for>
+              </div>
+              <h3 style="font-size:21px;margin:0 0 .6em;color:#0B1E3A">To unlock your certificate</h3>
+              <div style="display:grid;gap:8px">
+                <sc-for list="{{ b.checks }}" as="x">
+                  <div style="{{ x.st }}">
+                    <span style="{{ x.ck }}">{{ x.tick }}</span>
+                    <span>{{ x.text }}</span>
+                    <sc-if value="{{ x.showGo }}" hint-placeholder-val="{{ false }}"><button onClick="{{ x.go }}" style="margin-left:auto;background:none;border:0;padding:0;font-weight:700;color:#0279A0;text-decoration:underline;cursor:pointer">Go</button></sc-if>
+                  </div>
+                </sc-for>
+              </div>
+              <div style="margin-top:26px;padding:24px;border-radius:16px;background:#EEF4F7">
+                <h3 style="font-size:21px;margin:0 0 6px;color:#0B1E3A">Your certificate and answers</h3>
+                <p style="margin:0 0 12px;max-width:70ch">{{ b.certText }}</p>
+                <sc-if value="{{ b.cert }}" hint-placeholder-val="{{ false }}">
+                  <img dc-props="{{ b.certImg }}" alt="Your certificate of completion" style="width:100%;height:auto;border-radius:10px;box-shadow:0 6px 30px rgba(11,30,58,.14);margin:8px 0 10px;background:#FFFFFF">
+                </sc-if>
+                <div style="display:flex;flex-wrap:wrap;gap:12px;margin-top:12px">
+                  <sc-if value="{{ b.cert }}" hint-placeholder-val="{{ false }}">
+                    <a dc-props="{{ b.certLink }}" download="Communicating-Performance-Certificate.png" style="display:inline-flex;align-items:center;min-height:44px;padding:10px 20px;border-radius:999px;background:#05B4E0;color:#0B1E3A;font-weight:700;font-size:16px;text-decoration:none">Download certificate (PNG)</a>
+                  </sc-if>
+                  <button onClick="{{ b.onReport }}" style="display:inline-flex;align-items:center;min-height:44px;padding:10px 20px;border-radius:999px;border:2px solid #DAE4EA;background:#FFFFFF;color:#0B1E3A;font-weight:700;font-size:16px;cursor:pointer" style-hover="border-color:#05B4E0">PDF of my answers</button>
+                </div>
+              </div>
+              <h3 style="font-size:21px;margin:1.6em 0 .5em;color:#0B1E3A">Next steps</h3>
+              <ul style="padding-left:1.25em;margin:0;max-width:70ch">
+                <sc-for list="{{ b.next }}" as="x"><li style="margin-bottom:.35em">{{ x }}</li></sc-for>
+              </ul>
+            </div>
+          </sc-if>
+        </div>
+      </sc-for>
+
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-top:40px;padding-top:24px;border-top:1px solid #DAE4EA">
+        <sc-if value="{{ hasPrev }}" hint-placeholder-val="{{ false }}">
+          <button onClick="{{ prev }}" style="display:inline-flex;align-items:center;min-height:44px;padding:10px 20px;border-radius:999px;border:2px solid #DAE4EA;background:#FFFFFF;color:#0B1E3A;font-weight:700;font-size:16px;cursor:pointer" style-hover="border-color:#05B4E0">← Back</button>
+        </sc-if>
+        <span style="color:#5B6B80;font-weight:600;font-size:15px">{{ footNote }}</span>
+        <sc-if value="{{ hasNext }}" hint-placeholder-val="{{ false }}">
+          <button onClick="{{ next }}" style="display:inline-flex;align-items:center;min-height:44px;padding:10px 22px;border-radius:999px;border:0;background:#05B4E0;color:#0B1E3A;font-weight:700;font-size:16px;cursor:pointer;text-align:center" style-hover="background:#12C3EF">{{ nextLabel }}</button>
+        </sc-if>
+      </div>
+    </div>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { s: null, w: typeof window !== 'undefined' ? window.innerWidth : 1280, navOpen: false, sel: {}, flips: {}, drafts: {}, rstat: {}, nameDraft: null, nameStat: '', cert: null, quizErr: '' };
+
+  K = { navy: '#0B1E3A', ink: '#0B1E3A', body: '#26384F', slate: '#5B6B80', muted: '#8A97A8', line: '#DAE4EA', mist: '#EEF4F7', cyan: '#05B4E0', teal: '#2DD4C8', green: '#3DDC97', pink: '#FF6F91', greenT: '#D5F5E7', pinkT: '#FDE2E9', amberT: '#FFF1D6', cyanT: '#E4F5F9', ok: '#0E5E3E', bad: '#9B1B3F', amberInk: '#8A5300', grad: 'linear-gradient(160deg,#2DD4C8,#05B4E0)' };
+  TONES = { pink: ['#FF6F91', '#FDE2E9'], green: ['#3DDC97', '#D5F5E7'], amber: ['#FFB547', '#FFF1D6'], grey: ['#8A97A8', '#EEF4F7'], cyan: ['#05B4E0', '#E4F5F9'], violet: ['#8B7CF6', '#ECE9FE'] };
+  ACTS = ['av', 'buckets', 'seq', 'sim', 'hunt', 'selfcheck', 'profile', 'quiz'];
+
+  // ---------- audio-visual player ----------
+  hasAudio(b) { const m = this.state.manifest; return !!(this.singleFile(b) || (m && m[b.id] >= b.lines.length)); }
+  // Preview voices: best-quality built-in browser voices, one per speaker, until studio audio is generated.
+  ttsVoice(spId) {
+    const syn = window.speechSynthesis; if (!syn) return null;
+    if (!this._vmap) {
+      const all = syn.getVoices().filter(v => /^en[-_]/i.test(v.lang)); if (!all.length) return null;
+      const F = /samantha|ava|allison|susan|zira|aria|jenny|michelle|emma|karen|moira|tessa|serena|female|libby|sonia|natasha|joanna|salli|kendra|nicky|google us english/i;
+      const M = /alex|daniel|tom|fred|david|guy|christopher|eric|mark|aaron|evan|male|andrew|brian|roger|steffan|ryan|davis|tony|jason|matthew|joey|rishi/i;
+      const score = v => (/natural|neural|online/i.test(v.name) ? 40 : 0) + (/premium|enhanced/i.test(v.name) ? 30 : 0) + (/google/i.test(v.name) ? 15 : 0) + (/en[-_]us/i.test(v.lang) ? 8 : 0) + (v.localService ? 0 : 3);
+      const rank = re => all.filter(v => re.test(v.name)).sort((a, b) => score(b) - score(a));
+      const f = rank(F), m = rank(M).filter(v => !F.test(v.name) || /male/i.test(v.name)), any = all.slice().sort((a, b) => score(b) - score(a));
+      const pick = (list, n) => list[n] || list[0] || any[n] || any[0];
+      this._vmap = { narrator: pick(f, 0), dana: pick(f, 1), marisol: pick(f, 2) || pick(f, 1), am: pick(m, 0) };
+    }
+    return this._vmap[spId] || null;
+  }
+  avStop() {
+    this._tok = (this._tok || 0) + 1;
+    clearTimeout(this._ttsGuard);
+    try { window.speechSynthesis && window.speechSynthesis.cancel(); } catch (e) {}
+    clearTimeout(this._avT);
+    if (this._au) { this._au.onended = null; this._au.onerror = null; this._au.ontimeupdate = null; this._au.onloadedmetadata = null; try { this._au.pause(); } catch (e) {} this._au = null; }
+  }
+  avPause(b, i) {
+    const t = b.lines[i].text, n = b.lines[i + 1];
+    let ms = /(\.\.\.|…)["'”’)]*$/.test(t) ? 520 : /\?["'”’)]*$/.test(t) ? 380 : 320;
+    if (n && n.sp !== b.lines[i].sp) ms += 220;
+    return ms;
+  }
+  // One audio file per clip (e.g. an ElevenLabs dialogue). Captions follow by detecting the pauses between lines.
+  singleFile(b) { const s = this.state.singles; return s && s[b.id] ? 'assets/audio/' + s[b.id] + '?v=2' : null; }
+  async clipBounds(b, url) {
+    this._bounds = this._bounds || {};
+    if (this._bounds[b.id]) return this._bounds[b.id];
+    const n = b.lines.length;
+    const chars = b.lines.map(l => l.text.length + 25), tot = chars.reduce((a, c) => a + c, 0);
+    let res = null;
+    try {
+      const buf = await (await fetch(url)).arrayBuffer();
+      const Ctx = window.AudioContext || window.webkitAudioContext, ctx = new Ctx();
+      const ab = await ctx.decodeAudioData(buf); try { ctx.close(); } catch (e) {}
+      const d = ab.getChannelData(0), sr = ab.sampleRate, win = Math.round(sr * 0.02), rms = [];
+      for (let i = 0; i + win <= d.length; i += win) { let s = 0; for (let j = i; j < i + win; j++) s += d[j] * d[j]; rms.push(Math.sqrt(s / win)); }
+      const sorted = rms.slice().sort((x, y) => x - y), ref = sorted[Math.floor(sorted.length * 0.95)] || 0.1, th = ref * 0.06;
+      const gaps = []; let st = -1;
+      rms.forEach((v, i) => { if (v < th) { if (st < 0) st = i; } else { if (st >= 0 && (i - st) * 0.02 >= 0.22 && st > 0) gaps.push({ s: st * 0.02, e: i * 0.02 }); st = -1; } });
+      const dur = ab.duration;
+      if (gaps.length >= n - 1) {
+        const pick = gaps.slice().sort((x, y) => (y.e - y.s) - (x.e - x.s)).slice(0, n - 1).sort((x, y) => x.s - y.s);
+        res = [0].concat(pick.map(g => g.s + (g.e - g.s) * 0.75));
+      } else { let acc = 0; res = chars.map(c => { const t = acc / tot * dur; acc += c; return t; }); }
+    } catch (e) { res = null; }
+    if (res) this._bounds[b.id] = res;
+    return res;
+  }
+  avSingle(b, from) {
+    const url = this.singleFile(b);
+    const a = new Audio(url); this._au = a;
+    const exact = this.state.timings && this.state.timings[b.id];
+    let bounds = (exact && exact.length === b.lines.length ? exact : null) || (this._bounds && this._bounds[b.id]) || null;
+    if (!bounds) {
+      this.clipBounds(b, url).then(r => { if (r) bounds = r; });
+    }
+    const lineAt = t => {
+      if (!bounds) { const d = a.duration; if (!d || !isFinite(d)) return 0; const ch = b.lines.map(l => l.text.length + 25), tot = ch.reduce((x, y) => x + y, 0); let acc = 0, k = 0; ch.forEach((c, j) => { if (t >= acc / tot * d) k = j; acc += c; }); return k; } let k = 0; for (let j = 0; j < bounds.length; j++) if (t >= bounds[j]) k = j; return k; };
+    a.ontimeupdate = () => { const av = this.state.av, k = lineAt(a.currentTime); if (av && av.id === b.id && av.idx !== k && !av.ended) this.setState({ av: Object.assign({}, av, { idx: k }) }); };
+    a.onended = () => { this._au = null; this.setState({ av: { id: b.id, idx: b.lines.length - 1, playing: false, ended: true } }); this.setAct(b.id, x => { x.played = true; x.done = true; }); };
+    a.onerror = () => { this._au = null; this.setState(st => ({ singles: Object.assign({}, st.singles, { [b.id]: null }) }), () => this.avStart(b, from)); };
+    if (from > 0) a.onloadedmetadata = () => { if (bounds) a.currentTime = bounds[from] || 0; };
+    const p = a.play();
+    if (p && p.catch) p.catch(() => { const av = this.state.av; if (av && av.id === b.id) this.setState({ av: Object.assign({}, av, { playing: false }) }); });
+  }
+  avStart(b, from) {
+    this.avStop(); this._avB = b;
+    if (this.singleFile(b)) { this.setState({ av: { id: b.id, idx: from, playing: true } }, () => this.avSingle(b, from)); return; }
+    this.setState({ av: { id: b.id, idx: from, playing: true } }, () => this.avLine(from));
+  }
+  avLine(i) {
+    const b = this._avB, av = this.state.av;
+    if (!b || !av || av.id !== b.id || !av.playing) return;
+    if (i >= b.lines.length) {
+      this.setState({ av: { id: b.id, idx: b.lines.length - 1, playing: false, ended: true } });
+      this.setAct(b.id, x => { x.played = true; x.done = true; });
+      return;
+    }
+    this.setState({ av: { id: b.id, idx: i, playing: true } });
+    const l = b.lines[i];
+    const next = () => { this._au = null; this._avT = setTimeout(() => this.avLine(i + 1), this.avPause(b, i)); };
+    const tok = this._tok;
+    const words = l.text.split(/\s+/).length;
+    const captionsOnly = () => { this._au = null; this._avT = setTimeout(() => this.avLine(i + 1), Math.max(1800, words * 370) + this.avPause(b, i)); };
+    const timed = () => {
+      this._au = null;
+      const syn = window.speechSynthesis;
+      if (!syn || !window.SpeechSynthesisUtterance || !this.state.ttsPreview) return captionsOnly();
+      const u = new SpeechSynthesisUtterance(l.text.replace(/[“”]/g, '"'));
+      const v = this.ttsVoice(l.sp); if (v) { u.voice = v; u.lang = v.lang; } else u.lang = 'en-US';
+      const E = { neutral: [1, 1], warm: [.97, 1.03], excited: [1.12, 1.08], curious: [1.02, 1.06], empathetic: [.9, .96], serious: [.94, .95], playful: [1.05, 1.08], thoughtful: [.92, .98] }[l.emo || 'neutral'] || [1, 1];
+      u.rate = E[0] * (0.97 + Math.random() * 0.06); u.pitch = E[1];
+      let fired = false;
+      const done = () => { if (fired || tok !== this._tok) return; fired = true; clearTimeout(this._ttsGuard); this._avT = setTimeout(() => this.avLine(i + 1), this.avPause(b, i)); };
+      u.onend = done; u.onerror = done;
+      this._ttsGuard = setTimeout(done, words * 650 + 5000);
+      syn.cancel(); syn.speak(u);
+    };
+    if (this.hasAudio(b)) {
+      const a = new Audio('assets/audio/' + b.id + '/' + String(i + 1).padStart(2, '0') + '.' + (this.state.audioExt || 'mp3'));
+      this._au = a; a.onended = next; a.onerror = timed;
+      const p = a.play(); if (p && p.catch) p.catch(timed);
+    } else timed();
+  }
+  avToggle(b) {
+    const av = this.state.av;
+    if (av && av.id === b.id && av.playing) {
+      clearTimeout(this._avT);
+      if (this._au) this._au.pause();
+      else { this._tok = (this._tok || 0) + 1; clearTimeout(this._ttsGuard); try { window.speechSynthesis.cancel(); } catch (e) {} }
+      this.setState({ av: Object.assign({}, av, { playing: false }) });
+    } else if (av && av.id === b.id && !av.ended) {
+      if (this._au) { this.setState({ av: Object.assign({}, av, { playing: true }) }); this._au.play(); }
+      else this.avStart(b, av.idx);
+    } else this.avStart(b, 0);
+  }
+  vmAv(b) {
+    const K = this.K, a = this.act(b.id), av = this.state.av, me = !!(av && av.id === b.id), compact = this.state.w < 640;
+    const idx = me ? av.idx : -1, playing = me && av.playing, ended = me && av.ended;
+    const SP = this.C.speakers, line = idx >= 0 && !ended ? b.lines[idx] : null, who = line ? SP[line.sp] : null;
+    const ini = n => n.split(/\s+/).map(x => x[0]).join('').slice(0, 2).toUpperCase();
+    const avatar = (sp, size) => ({ flex: 'none', width: size, height: size, borderRadius: '50%', background: (this.TONES[sp.tone] || [K.teal])[0] + (sp.photo ? ' url("' + sp.photo + '") center / cover no-repeat' : ''), border: sp.photo ? '2px solid rgba(255,255,255,.85)' : 0, boxSizing: 'border-box', color: K.navy, display: 'grid', placeItems: 'center', fontWeight: 700, fontSize: size > 30 ? 15 : 11 });
+    let beat = b.title;
+    if (idx >= 0) for (let j = idx; j >= 0; j--) if (b.lines[j].beat) { beat = b.lines[j].beat; break; }
+    const castIds = b.lines.map(l => l.sp).filter((v, i, arr) => arr.indexOf(v) === i);
+    const tOpen = !!(this.state.avT || {})[b.id];
+    const showAsk = !!(b.ask && (a.played || a.read || a.askPick != null));
+    const pick = a.askPick, pickOk = b.ask && pick != null && b.ask.opts[pick].ok;
+    return {
+      kicker: b.kind + ' · ' + b.mins, title: b.title,
+      stageSt: { position: 'relative', background: K.navy, borderRadius: 16, overflow: 'hidden', aspectRatio: compact ? 'auto' : '16 / 9', minHeight: compact ? 320 : 0, display: 'flex', flexDirection: 'column', padding: compact ? 18 : '24px 30px', color: '#C9D6E4' },
+      hasWho: !!who, noWho: !who,
+      whoName: who ? who.name : '', whoRole: who ? who.role : '', whoInitials: who && !who.photo ? ini(who.name) : '', avatarSt: who ? Object.assign(avatar(who, 56), { boxShadow: playing ? '0 0 0 4px rgba(45,212,200,.35)' : 'none', transition: 'box-shadow .2s' }) : {},
+      cast: castIds.map(id => ({ name: SP[id].name, initials: SP[id].photo ? '' : ini(SP[id].name), st: avatar(SP[id], 28) })),
+      statusLabel: playing ? '● Playing' : ended ? 'Finished' : me ? 'Paused' : (a.played ? 'Played' : 'Ready'),
+      statusSt: { fontSize: 13, fontWeight: 700, color: playing ? K.teal : '#A9B8C9', letterSpacing: '.02em' },
+      beat,
+      beatSt: { color: '#FFFFFF', fontWeight: 700, fontSize: compact ? 26 : 'clamp(26px,3.6vw,42px)', lineHeight: 1.1, maxWidth: '15em', letterSpacing: '-.01em', textWrap: 'balance' },
+      capWho: line ? SP[line.sp].name.split(' ')[0] : '',
+      caption: line ? line.text : ended ? 'End of clip.' + (b.ask ? ' Answer the question below.' : '') : 'Select Play to listen. Captions appear here.',
+      segs: b.lines.map((l, i) => ({ st: { flex: 1, height: 5, borderRadius: 3, background: ended || i < idx ? K.teal : i === idx ? K.cyan : 'rgba(255,255,255,.18)' } })),
+      onToggle: () => this.avToggle(b),
+      playIcon: playing ? '❚❚' : '▶', playLabel: playing ? 'Pause' : ended || (!me && a.played) ? 'Play again' : me ? 'Resume' : 'Play',
+      canRestart: me && !ended, onRestart: () => this.avStart(b, 0),
+      onTranscript: () => this.setState(st => ({ avT: Object.assign({}, st.avT, { [b.id]: !tOpen }) })),
+      tOpen, tOpenAttr: tOpen ? 'true' : 'false', tLabel: tOpen ? 'Hide transcript' : 'Show transcript',
+      progress: me ? (ended ? b.lines.length : idx + 1) + ' / ' + b.lines.length : '',
+      note: this.state.manifest && !this.hasAudio(b) ? (this.state.ttsPreview ? 'Playing a rough preview with your browser’s built-in voice.' : 'Studio audio not generated yet. This clip plays as timed captions.') : '',
+      canPreview: !!(this.state.manifest && !this.hasAudio(b) && typeof window !== 'undefined' && window.speechSynthesis),
+      previewLabel: this.state.ttsPreview ? 'Turn off preview voice' : 'Try rough preview voice',
+      onPreview: () => { this.avStop(); this.setState(st => ({ ttsPreview: !st.ttsPreview, av: null })); },
+      transcript: b.lines.map((l, i) => ({ name: SP[l.sp].name, text: l.text, st: { display: 'flex', gap: 12, flexDirection: compact ? 'column' : 'row', fontSize: 15.5, padding: '6px 10px', borderRadius: 6, background: i === idx && playing ? K.cyanT : 'transparent' } })),
+      read: !!a.read, onRead: e => { const v = e.target.checked; this.setAct(b.id, x => { x.read = v; x.done = !!(x.played || v); }); },
+      showAsk, askQ: b.ask ? b.ask.q : '',
+      askOpts: b.ask ? b.ask.opts.map((o, i) => { const on = pick === i;
+        let st = this.btn({ gap: 12, alignItems: 'flex-start', padding: '12px 14px', fontSize: 15.5 });
+        if (on) st = Object.assign(st, o.ok ? { borderColor: K.green, background: K.greenT } : { borderColor: K.pink, background: K.pinkT });
+        return { letter: 'ABC'[i], text: o.text, st, onClick: () => this.setAct(b.id, x => { x.askPick = i; }) }; }) : [],
+      askFb: pick != null && b.ask ? b.ask.opts[pick].fb : '',
+      askFbSt: { marginTop: 12, padding: '12px 16px', borderRadius: 10, fontSize: 15.5, background: pickOk ? K.greenT : K.pinkT, color: pickOk ? K.ok : K.bad }
+    };
+  }
+
+  componentDidMount() {
+    const boot = () => {
+      if (!window.CP_COURSE) { this._bt = setTimeout(boot, 40); return; }
+      this.C = window.CP_COURSE;
+      let saved = null;
+      try { saved = JSON.parse(localStorage.getItem(this.C.storeKey)); } catch (e) {}
+      const s = Object.assign(this.blank(), saved || {});
+      if (!this.C.modules[s.cur]) { s.cur = 'welcome'; s.page = 0; }
+      if (s.page >= this.C.modules[s.cur].pages.length) s.page = 0;
+      this.markSeen(s, s.cur, s.page);
+      this.setState({ s }, () => this.persist());
+    };
+    boot();
+    try { if (window.speechSynthesis) { window.speechSynthesis.getVoices(); window.speechSynthesis.onvoiceschanged = () => { this._vmap = null; }; } } catch (e) {}
+    fetch('assets/audio/manifest.json?v=' + Date.now(), { cache: 'no-cache' }).then(r => r.ok ? r.json() : null)
+      .then(m => this.setState({ manifest: (m && m.clips) || {}, audioExt: (m && m.ext) || 'mp3', singles: (m && m.single) || {}, timings: (m && m.timings) || {} })).catch(() => this.setState({ manifest: {} }));
+    this._rs = () => this.setState({ w: window.innerWidth });
+    window.addEventListener('resize', this._rs);
+    this._last = Date.now(); this._tick = Date.now();
+    this._act = () => { this._last = Date.now(); };
+    ['pointerdown', 'keydown', 'scroll', 'mousemove'].forEach(e => window.addEventListener(e, this._act, { passive: true }));
+    this._iv = setInterval(() => {
+      const now = Date.now(), dt = now - this._tick; this._tick = now;
+      if (!this.state.s || document.hidden || now - this._last > 300000 || dt > 15000) return;
+      this.upd(s => { s.time = (s.time || 0) + dt / 1000; });
+    }, 5000);
+  }
+  componentWillUnmount() {
+    clearTimeout(this._bt); clearInterval(this._iv); this.avStop();
+    window.removeEventListener('resize', this._rs);
+    ['pointerdown', 'keydown', 'scroll', 'mousemove'].forEach(e => window.removeEventListener(e, this._act));
+  }
+  animateIn() {
+    try {
+      if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+      const ease = 'cubic-bezier(.2,.7,.2,1)';
+      document.querySelectorAll('[data-blk]').forEach((el, i) => { if (!el.animate) return;
+        el.animate([{ opacity: 0, transform: 'translateY(16px)' }, { opacity: 1, transform: 'none' }], { duration: 520, delay: Math.min(i, 8) * 70, easing: ease, fill: 'backwards' }); });
+      document.querySelectorAll('[data-hero] > *').forEach((el, i) => { if (!el.animate) return;
+        el.animate([{ opacity: 0, transform: 'translateX(-18px)' }, { opacity: 1, transform: 'none' }], { duration: 640, delay: 80 + i * 110, easing: ease, fill: 'backwards' }); });
+    } catch (e) {}
+  }
+  growBars() {
+    try {
+      if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+      document.querySelectorAll('[data-grow]').forEach((el, i) => { if (el._grown || !el.animate) return; el._grown = 1;
+        el.animate([{ transform: 'scaleX(0)' }, { transform: 'scaleX(1)' }], { duration: 800, delay: 150 + i * 90, easing: 'cubic-bezier(.2,.7,.2,1)', fill: 'backwards', composite: 'replace' }).onfinish = null;
+        el.style.transformOrigin = 'left center'; });
+    } catch (e) {}
+  }
+  componentDidUpdate() {
+    const s = this.state.s;
+    if (s) { const pk = s.cur + ':' + s.page; if (this._pk !== pk) { this._pk = pk; requestAnimationFrame(() => this.animateIn()); } requestAnimationFrame(() => this.growBars()); }
+    if (s && s.cur === 'results' && this.unlocked(s)) {
+      const sig = s.name + '|' + s.quiz.best;
+      if (this._certSig !== sig && !this._gen) this.makeCert(sig);
+    }
+  }
+
+  blank() { return { name: '', cur: 'welcome', page: 0, seen: {}, acts: {}, refl: {}, quiz: { ans: {}, submitted: false, score: null, best: 0 }, poll: null, lob: null, time: 0 }; }
+  persist() { try { localStorage.setItem(this.C.storeKey, JSON.stringify(this.state.s)); } catch (e) {} }
+  upd(fn, cb) {
+    this.setState(st => { const s = JSON.parse(JSON.stringify(st.s)); fn(s); return { s }; }, () => { this.persist(); cb && cb(); });
+  }
+  markSeen(s, m, p) { s.seen[m] = s.seen[m] || []; if (s.seen[m].indexOf(p) < 0) s.seen[m].push(p); }
+  order() { return this.C.groups.reduce((a, g) => a.concat(g.mods), []); }
+  actsOf(m) {
+    const ids = [];
+    this.C.modules[m].pages.forEach(pg => pg.forEach(b => { if (this.ACTS.indexOf(b.t) >= 0) ids.push(b.t === 'quiz' ? 'quiz' : b.id); }));
+    return ids;
+  }
+  actDone(s, id) { return id === 'quiz' ? s.quiz.best >= this.C.passMark : Object.keys(s.acts).some(k => (k === id || k.indexOf(id + '@') === 0) && s.acts[k] && s.acts[k].done); }
+  modProg(s, m) {
+    const pages = this.C.modules[m].pages.length, acts = this.actsOf(m);
+    const seen = (s.seen[m] || []).length, done = acts.filter(id => this.actDone(s, id)).length;
+    return (Math.min(seen, pages) + done) / (pages + acts.length);
+  }
+  contentMods() { return this.order().filter(m => m !== 'results' && m !== 'final'); }
+  unlocked(s) { return !!s.name && this.contentMods().every(m => this.modProg(s, m) >= 1) && s.quiz.best >= this.C.passMark; }
+
+  go(m, p) {
+    this.upd(s => { s.cur = m; s.page = p; this.markSeen(s, m, p); });
+    this.avStop();
+    this.setState({ navOpen: false, sel: {}, quizErr: '', av: null });
+    try { window.scrollTo(0, 0); } catch (e) {}
+  }
+  step(dir) {
+    const s = this.state.s, o = this.order(), mi = o.indexOf(s.cur), n = this.C.modules[s.cur].pages.length;
+    if (dir > 0) { if (s.page < n - 1) this.go(s.cur, s.page + 1); else if (mi < o.length - 1) this.go(o[mi + 1], 0); }
+    else { if (s.page > 0) this.go(s.cur, s.page - 1); else if (mi > 0) { const pm = o[mi - 1]; this.go(pm, this.C.modules[pm].pages.length - 1); } }
+  }
+  fmtTime(sec) {
+    const m = Math.floor((sec || 0) / 60);
+    if (m < 1) return 'under 1 min';
+    if (m < 60) return m + ' min';
+    return Math.floor(m / 60) + ' h ' + (m % 60) + ' min';
+  }
+  segs(html, strong) {
+    return String(html || '').split(/(<strong>[\s\S]*?<\/strong>)/).filter(Boolean).map(x => {
+      const b = /^<strong>/.test(x);
+      return { text: x.replace(/<[^>]+>/g, ''), st: b ? { fontWeight: 700, color: strong || '#0B1E3A' } : {} };
+    });
+  }
+  paras(html, strong) { return String(html || '').split(/<br\s*\/?>\s*<br\s*\/?>/).map(p => ({ segs: this.segs(p, strong) })); }
+  act(id) { return (this.state.s.acts[id]) || {}; }
+  lobId() { const s = this.state.s, L = this.C.lobs || []; return (s && s.lob) || this.C.lobDefault || (L[0] && L[0].id); }
+  lobName() { const l = (this.C.lobs || []).find(x => x.id === this.lobId()); return l ? l.name : ''; }
+  eff(b) { if (!b.byLob) return b; const l = this.lobId(), v = b.byLob[l] || {}; return Object.assign({}, b, v, { id: b.id ? b.id + '@' + l : b.id, byLob: null }); }
+  setAct(id, fn) { this.upd(s => { const a = s.acts[id] || {}; fn(a); s.acts[id] = a; }); }
+  btn(extra) { return Object.assign({ display: 'flex', width: '100%', textAlign: 'left', border: '2px solid ' + this.K.line, borderRadius: 10, background: '#FFFFFF', color: this.K.ink, cursor: 'pointer', fontSize: 16, lineHeight: 1.45 }, extra || {}); }
+  actBox() { const c = this.state.w < 640; return { margin: '26px 0', padding: c ? '18px 14px' : '26px 28px', border: '1px solid ' + this.K.line, borderRadius: 16, background: '#FFFFFF' }; }
+  statusSt(kind) { return { margin: 0, fontWeight: 600, flexBasis: '100%', color: kind === 'ok' ? this.K.ok : kind === 'bad' ? this.K.bad : this.K.slate }; }
+
+  // ---------- block view models ----------
+  vm(b0, key) {
+    const b = this.eff(b0);
+    const o = { key }; o['is_' + b.t] = true;
+    const K = this.K, s = this.state.s, compact = this.state.w < 640;
+    switch (b.t) {
+      case 'lede': case 'p': o.segs = this.segs(b.html); break;
+      case 'h3': o.text = b.text; break;
+      case 'table': {
+        const cols = b.cols || 'repeat(' + b.head.length + ',1fr)';
+        o.wrapSt = { minWidth: b.minW || 600 };
+        o.headSt = { display: 'grid', gridTemplateColumns: cols, background: K.navy };
+        o.head = b.head.map(t => ({ text: t }));
+        o.rows = b.rows.map((r, ri) => ({ st: { display: 'grid', gridTemplateColumns: cols, borderTop: '1px solid ' + K.line, background: ri % 2 ? '#F7FAFC' : '#FFFFFF' },
+          cells: r.map((c, ci) => ({ text: c, st: { padding: '10px 14px', fontSize: 15, lineHeight: 1.4, color: ci === 0 ? K.ink : K.body, fontWeight: ci === 0 ? 600 : 400 } })) }));
+        o.hasCaption = !!b.caption; o.caption = b.caption || '';
+        break;
+      }
+      case 'lob': {
+        const cur = s.lob;
+        o.items = (this.C.lobs || []).map(l => { const on = cur === l.id;
+          return { name: l.name, pressed: on ? 'true' : 'false', onClick: () => this.upd(x => { x.lob = l.id; }),
+            st: { minHeight: 48, padding: '10px 14px', borderRadius: 10, border: '2px solid ' + (on ? K.navy : K.line), background: on ? K.navy : '#FFFFFF', color: on ? '#FFFFFF' : K.ink, fontWeight: 600, fontSize: 15.5, textAlign: 'left', cursor: 'pointer', lineHeight: 1.25 } }; });
+        o.status = cur ? 'Activities will use ' + this.lobName() + ' scenarios. You can change this on any activity page.' : 'Pick the line of business closest to your clients. Rewrite lines, emails, role-play cards and pushback calls will use it.';
+        break;
+      }
+      case 'lobbar': {
+        o.domId = 'lob-' + key; o.value = this.lobId();
+        o.opts = (this.C.lobs || []).map(l => ({ value: l.id, label: l.name }));
+        o.onChange = e => { const v = e.target.value; this.upd(x => { x.lob = v; }); };
+        break;
+      }
+      case 'quote': o.text = b.html.replace(/<[^>]+>/g, ''); break;
+      case 'list': case 'flow': case 'objectives': o.items = b.items.map((h, i) => ({ n: i + 1, segs: this.segs(h) })); break;
+      case 'callout': {
+        const key2 = b.tone === 'key';
+        o.st = { padding: '18px 22px', borderRadius: 10, margin: '22px 0', maxWidth: '70ch', background: key2 ? K.navy : K.cyanT, color: key2 ? '#DCE6F0' : K.ink };
+        o.segs = this.segs(b.html, key2 ? '#FFFFFF' : K.ink); break;
+      }
+      case 'assignment': o.tag = b.tag; o.title = b.title; o.paras = this.paras(b.html); break;
+      case 'cards': {
+        const n = b.cols || b.items.length;
+        const min = n >= 3 ? 210 : 260;
+        o.gridSt = { display: 'grid', gap: 12, gridTemplateColumns: compact ? '1fr' : 'repeat(auto-fit,minmax(' + min + 'px,1fr))', margin: '18px 0 24px' };
+        o.items = b.items.map(c => { const t = this.TONES[c.tone || 'grey'];
+          return { kicker: c.kicker, title: c.title || '', quote: c.quote || '', text: c.text || '', note: c.note || '', list: c.list || [], hasList: !!(c.list && c.list.length),
+            st: { background: t[1], borderRadius: 10, padding: 18, display: 'flex', flexDirection: 'column', gap: 10, transition: 'transform .25s cubic-bezier(.2,.7,.2,1), box-shadow .25s' },
+            markSt: { flex: 'none', width: 8, height: 18, borderRadius: 2, transform: 'skewY(-26deg)', background: t[0] } }; });
+        break;
+      }
+      case 'flip': o.items = b.items.map((f, i) => { const k = key + '-' + i, on = !!this.state.flips[k];
+        return { title: f.title, sub: f.sub, back: f.back, pressed: on ? 'true' : 'false',
+          inner: { display: 'grid', position: 'relative', transformStyle: 'preserve-3d', transition: 'transform .5s cubic-bezier(.3,.7,.3,1)', borderRadius: 10, transform: on ? 'rotateY(180deg)' : 'none' },
+          onClick: () => this.setState(st => ({ flips: Object.assign({}, st.flips, { [k]: !on }) })) }; });
+        break;
+      case 'takeaways': o.items = b.items.map((t, i) => ({ n: i + 1, title: t.title, text: t.text })); break;
+      case 'name': {
+        o.value = this.state.nameDraft != null ? this.state.nameDraft : s.name;
+        o.onChange = e => this.setState({ nameDraft: e.target.value, nameStat: '' });
+        const save = () => { const v = (this.state.nameDraft != null ? this.state.nameDraft : s.name).trim();
+          if (!v) { this.setState({ nameStat: 'err' }); return; }
+          this.upd(x => { x.name = v; }); this.setState({ nameDraft: null, nameStat: 'ok' }); };
+        o.onSave = save; o.onKey = e => { if (e.key === 'Enter') save(); };
+        o.status = this.state.nameStat === 'err' ? 'Please enter your name first.' : this.state.nameStat === 'ok' || s.name ? 'Saved. Your certificate will read: ' + s.name : '';
+        o.statusSt = { margin: '8px 0 0', fontSize: 15, fontWeight: 600, color: this.state.nameStat === 'err' ? K.bad : K.slate };
+        break;
+      }
+      case 'reflect': {
+        const d = this.state.drafts[b.id], saved = s.refl[b.id] || '';
+        o.domId = 'rf-' + b.id; o.label = b.label; o.hint = b.hint || ''; o.rows = b.rows || 4; o.model = b.model || '';
+        o.value = d != null ? d : saved;
+        o.onChange = e => { const v = e.target.value; this.setState(st => ({ drafts: Object.assign({}, st.drafts, { [b.id]: v }), rstat: Object.assign({}, st.rstat, { [b.id]: '' }) })); };
+        const save = () => { const v = this.state.drafts[b.id]; if (v == null) return;
+          this.upd(x => { x.refl[b.id] = v; });
+          this.setState(st => { const dr = Object.assign({}, st.drafts); delete dr[b.id]; return { drafts: dr, rstat: Object.assign({}, st.rstat, { [b.id]: v.trim() ? 'Saved' : '' }) }; }); };
+        o.onSave = save; o.onBlur = save;
+        o.status = this.state.rstat[b.id] || (d != null && d !== saved ? 'Unsaved changes' : saved ? 'Saved' : '');
+        o.showModel = !!(b.model && saved.trim());
+        break;
+      }
+      case 'poll': {
+        const ch = s.poll;
+        o.q = b.q; o.hasFb = ch != null; o.fb = ch != null ? this.segs(b.opts[ch].fb) : [];
+        o.opts = b.opts.map((p, i) => { const on = ch === i;
+          return { title: p.title, sub: p.sub, pressed: on ? 'true' : 'false',
+            st: this.btn({ flexDirection: 'column', gap: 4, padding: '14px 16px', borderColor: on ? K.navy : K.line, background: on ? K.navy : '#FFFFFF', color: on ? '#FFFFFF' : K.ink }),
+            subSt: { fontSize: 14.5, color: on ? '#C9D6E4' : K.slate },
+            onClick: () => this.upd(x => { x.poll = i; }) }; });
+        break;
+      }
+      case 'av': return Object.assign(o, this.vmAv(b));
+      case 'buckets': return Object.assign(o, this.vmBuckets(b));
+      case 'seq': return Object.assign(o, this.vmSeq(b));
+      case 'sim': return Object.assign(o, this.vmSim(b));
+      case 'hunt': return Object.assign(o, this.vmHunt(b));
+      case 'selfcheck': return Object.assign(o, this.vmSelf(b));
+      case 'quiz': return Object.assign(o, this.vmQuiz());
+      case 'results': return Object.assign(o, this.vmResults(), { next: this.C.nextSteps || [] });
+      case 'profile': return Object.assign(o, this.vmProfile(b));
+    }
+    return o;
+  }
+
+  vmBuckets(b) {
+    const K = this.K, a = this.act(b.id), place = a.place || {}, checked = a.checked || {}, sel = this.state.sel[b.id], done = !!a.done;
+    const setSel = v => this.setState(st => ({ sel: Object.assign({}, st.sel, { [b.id]: v }) }));
+    const placeAt = (i, bk) => { if (checked[i] === 'ok') return;
+      this.setAct(b.id, x => { x.place = x.place || {}; x.checked = x.checked || {}; if (bk) x.place[i] = bk; else delete x.place[i]; delete x.checked[i]; x.msg = null; });
+      setSel(null); };
+    const chip = (c, i, inB) => { const stt = checked[i], on = sel === i;
+      let st = { display: 'block', textAlign: 'left', padding: '10px 14px', minHeight: 44, borderRadius: 6, border: '2px solid ' + K.line, background: '#FFFFFF', color: K.ink, cursor: 'grab', fontSize: 15, lineHeight: 1.35, maxWidth: '100%', boxShadow: '0 1px 2px rgba(11,30,58,.06)', width: inB ? '100%' : 'auto' };
+      if (stt === 'ok') st = Object.assign(st, { borderColor: K.green, background: K.greenT, cursor: 'default' });
+      if (stt === 'bad') st = Object.assign(st, { borderColor: K.pink, background: K.pinkT });
+      if (on) st = Object.assign(st, { borderColor: K.navy, background: K.navy, color: '#FFFFFF', boxShadow: '0 4px 14px rgba(11,30,58,.2)' });
+      return { text: c.text, why: stt === 'bad' ? c.why : '', st, whySt: { display: 'block', marginTop: 6, fontSize: 14, fontWeight: 600, color: on ? '#FFC2D1' : K.bad },
+        onClick: e => { e.stopPropagation(); if (done || stt === 'ok') return; if (sel != null && sel !== i && inB) { placeAt(sel, place[i]); return; } setSel(on ? null : i); },
+        onDrag: e => { if (stt === 'ok' || done) { e.preventDefault(); return; } e.dataTransfer.setData('text/plain', String(i)); e.dataTransfer.effectAllowed = 'move'; } };
+    };
+    const dropIdx = e => { e.preventDefault(); const v = parseInt(e.dataTransfer.getData('text/plain'), 10); return isNaN(v) ? null : v; };
+    const tray = b.chips.map((c, i) => [c, i]).filter(([c, i]) => !place[i]);
+    const armed = sel != null;
+    const n = b.chips.length, allPlaced = tray.length === 0;
+    const okN = Object.keys(checked).filter(k => checked[k] === 'ok').length;
+    const compact = this.state.w < 640;
+    return {
+      title: b.title, inst: b.inst, kp: b.kp, done, actSt: this.actBox(),
+      trayLabel: tray.length ? 'Items to sort (' + tray.length + ')' : 'All items placed',
+      trayStyle: { border: '2px dashed ' + (armed && place[sel] ? K.muted : K.line), borderRadius: 10, padding: 14, marginBottom: 14, background: '#FAFCFD', cursor: armed && place[sel] ? 'pointer' : 'default' },
+      tray: tray.map(([c, i]) => chip(c, i, false)),
+      onTray: () => { if (sel != null && place[sel]) placeAt(sel, null); },
+      onOver: e => e.preventDefault(),
+      onTrayDrop: e => { const i = dropIdx(e); if (i != null) placeAt(i, null); },
+      gridSt: { display: 'grid', gap: 12, gridTemplateColumns: compact ? '1fr' : (b.buckets.length === 3 ? 'repeat(3,1fr)' : 'repeat(2,minmax(0,1fr))') },
+      buckets: b.buckets.map(k => { const t = this.TONES[k.tone || 'grey'];
+        return { title: k.title, sub: k.sub || '',
+          st: { position: 'relative', borderRadius: 10, background: t[1], padding: 12, minHeight: compact ? 84 : 130, border: '2px ' + (armed ? 'dashed ' + t[0] : 'solid transparent'), cursor: armed ? 'pointer' : 'default' },
+          chips: b.chips.map((c, i) => [c, i]).filter(([c, i]) => place[i] === k.id).map(([c, i]) => chip(c, i, true)),
+          onClick: () => { if (sel != null) placeAt(sel, k.id); },
+          onDrop: e => { const i = dropIdx(e); if (i != null) placeAt(i, k.id); } }; }),
+      canCheck: allPlaced && !done,
+      onCheck: () => this.setAct(b.id, x => { x.checked = {}; let ok = 0; b.chips.forEach((c, i) => { const r = x.place[i] === c.b ? 'ok' : 'bad'; x.checked[i] = r; if (r === 'ok') ok++; }); x.done = ok === n; x.msg = ok; }),
+      onReset: () => { this.setAct(b.id, x => { x.place = {}; x.checked = {}; x.done = false; x.msg = null; }); setSel(null); },
+      status: done ? 'All ' + n + ' correct. Well done.' : (a.msg != null ? okN + ' of ' + n + ' are in the right place. Move the highlighted items and check again.' : ''),
+      statusSt: this.statusSt(done ? 'ok' : 'bad')
+    };
+  }
+
+  vmSeq(b) {
+    const K = this.K, a = this.act(b.id), picks = a.picks || [], n = b.items.length, done = !!a.done;
+    let perm = b.items.map((x, i) => i);
+    const h = i => { let v = 0; const str = b.id + i; for (let j = 0; j < str.length; j++) v = (v * 31 + str.charCodeAt(j)) % 9973; return v; };
+    perm.sort((x, y) => h(x) - h(y));
+    if (perm.every((v, i) => v === i)) perm.reverse();
+    const checked = !!a.checked;
+    return {
+      title: b.title, inst: b.inst, kp: b.kp, done, actSt: this.actBox(),
+      rows: perm.map(i => { const pos = picks.indexOf(i), picked = pos >= 0, ok = checked && pos === i, bad = checked && !ok;
+        let st = { display: 'grid', gridTemplateColumns: '40px 1fr', alignItems: 'center', gap: 12, width: '100%', textAlign: 'left', padding: '10px 14px', minHeight: 52, border: '2px solid ' + K.line, borderRadius: 10, background: '#FFFFFF', color: K.ink, cursor: done ? 'default' : 'pointer', fontSize: 16 };
+        if (picked) st.borderColor = K.navy;
+        if (ok || done) st = Object.assign(st, { borderColor: K.green, background: K.greenT });
+        if (bad) st = Object.assign(st, { borderColor: K.pink, background: K.pinkT });
+        return { text: b.items[i].text, num: picked ? pos + 1 : '',
+          dotSt: picked ? { width: 32, height: 32, borderRadius: '50%', background: K.navy, color: '#FFFFFF', display: 'grid', placeItems: 'center', fontWeight: 700, fontSize: 15 } : { width: 32, height: 32, borderRadius: '50%', border: '2px dashed ' + K.muted, display: 'grid', placeItems: 'center', fontWeight: 700, fontSize: 15 },
+          st, onClick: () => { if (done) return; this.setAct(b.id, x => { const p = x.picks || []; x.checked = false; const at = p.indexOf(i); x.picks = at >= 0 ? p.slice(0, at) : p.concat([i]); }); } }; }),
+      canCheck: picks.length === n && !done && !checked,
+      onCheck: () => this.setAct(b.id, x => { x.checked = true; x.done = x.picks.every((v, i) => v === i); }),
+      onReset: () => this.setAct(b.id, x => { x.picks = []; x.checked = false; x.done = false; }),
+      status: done ? 'Correct order. Nicely done.' : checked ? picks.filter((v, i) => v === i).length + ' of ' + n + ' are in the right position. Select a step to unpick it and those after it, then try again.' : (picks.length ? picks.length + ' of ' + n + ' selected' : ''),
+      statusSt: this.statusSt(done ? 'ok' : checked ? 'bad' : '')
+    };
+  }
+
+  vmSim(b) {
+    const K = this.K, a = this.act(b.id), stepI = a.step || 0, tried = a.tried || [], okPick = a.okPick, done = !!a.done;
+    const cur = b.steps[Math.min(stepI, b.steps.length - 1)];
+    const last = a.last;
+    const o = { title: b.title, intro: b.intro, kp: b.kp, done, running: !done, actSt: this.actBox(), doneHead: b.doneHead || 'Call handled.', replayLbl: b.replay || 'Replay the call',
+      onReset: () => this.setAct(b.id, x => { x.step = 0; x.tried = []; x.okPick = null; x.last = null; x.done = false; x.path = []; }) };
+    if (done) { o.path = (a.path || []).map((p, i) => b.steps[i].opts[p].text); return o; }
+    o.progress = (b.stepWord || 'Moment') + ' ' + (stepI + 1) + ' of ' + b.steps.length;
+    o.bars = b.steps.map((x, i) => ({ st: { width: 9, height: 20, borderRadius: 2, transform: 'skewY(-26deg)', background: i < stepI ? K.teal : i === stepI ? K.navy : K.line } }));
+    o.sit = cur.sit;
+    const per = cur.who ? ((this.C.people || {})[cur.who] || this.C.speakers[cur.who]) : null;
+    o.hasPerson = !!per; o.personName = per ? per.name : ''; o.personRole = per ? per.role : '';
+    o.personSt = per ? { flex: 'none', width: 64, height: 64, borderRadius: '50%', background: K.mist + (per.photo ? ' url("' + per.photo + '") center / cover no-repeat' : ''), boxShadow: '0 4px 14px rgba(11,30,58,.15)' } : {};
+    o.opts = cur.opts.map((p, i) => { const isTried = tried.indexOf(i) >= 0, isOk = okPick === i;
+      let st = this.btn({ gap: 14, alignItems: 'flex-start', padding: '14px 16px' });
+      if (isOk) st = Object.assign(st, { borderColor: K.green, background: K.greenT, cursor: 'default' });
+      else if (isTried) st = Object.assign(st, { borderColor: K.pink, background: K.pinkT, opacity: .6, textDecoration: 'line-through', textDecorationColor: K.pink, cursor: 'default' });
+      else if (okPick != null) st = Object.assign(st, { opacity: .5, cursor: 'default' });
+      return { letter: 'ABC'[i], text: p.text, st, disabled: isTried || okPick != null,
+        onClick: () => this.setAct(b.id, x => { x.tried = x.tried || []; x.last = { i, ok: !!p.ok };
+          if (p.ok) { x.okPick = i; x.path = x.path || []; x.path[stepI] = i; } else if (x.tried.indexOf(i) < 0) x.tried.push(i); }) }; });
+    const fbOpt = last != null ? cur.opts[last.i] : null;
+    o.fb = fbOpt ? fbOpt.fb : '';
+    o.fbHead = last && last.ok ? 'Good choice.' : 'Not quite.';
+    o.fbSt = { marginTop: 14, padding: '14px 18px', borderRadius: 10, fontSize: 16, background: last && last.ok ? K.greenT : K.pinkT, color: last && last.ok ? K.ok : K.bad };
+    o.canNext = okPick != null;
+    o.nextLabel = stepI < b.steps.length - 1 ? (b.nextLbl || 'Continue the call') : 'See how you did';
+    o.onNext = () => this.setAct(b.id, x => { x.tried = []; x.okPick = null; x.last = null; if ((x.step || 0) < b.steps.length - 1) x.step = (x.step || 0) + 1; else x.done = true; });
+    return o;
+  }
+
+  vmHunt(b) {
+    const K = this.K, a = this.act(b.id), found = a.found || [], miss = a.miss || [], done = !!a.done;
+    const need = b.lines.filter(l => l.flaw).length;
+    const last = a.last;
+    return {
+      title: b.title, inst: b.inst, kp: b.kp, done, actSt: this.actBox(),
+      lines: b.lines.map((l, i) => { const f = found.indexOf(i) >= 0, m = miss.indexOf(i) >= 0;
+        let st = { display: 'flex', gap: 10, alignItems: 'baseline', width: '100%', textAlign: 'left', padding: '10px 14px', border: '2px solid ' + K.line, background: '#FFFFFF', color: K.ink, borderRadius: 6, fontSize: 15.5, cursor: 'pointer', lineHeight: 1.4 };
+        if (f) st = Object.assign(st, { borderColor: K.green, background: K.greenT, boxShadow: '0 0 0 3px rgba(61,220,151,.3)', cursor: 'default' });
+        if (m) st = Object.assign(st, { borderColor: K.pink, background: K.pinkT });
+        if (done && !f) st.opacity = .65;
+        if (l.label && !f && !m) st.background = '#F4F8FA';
+        return { label: l.label || '', text: l.text, st, disabled: f || done,
+          onClick: () => this.setAct(b.id, x => { x.found = x.found || []; x.miss = x.miss || [];
+            if (l.flaw) { if (x.found.indexOf(i) < 0) x.found.push(i); x.last = { i, ok: true }; x.done = x.found.length === need; }
+            else { if (x.miss.indexOf(i) < 0) x.miss.push(i); x.last = { i, ok: false }; } }) }; }),
+      count: found.length + ' of ' + need + ' gaps found',
+      fb: last ? (last.ok ? 'Gap found: ' + b.lines[last.i].flaw : b.lines[last.i].miss) : '',
+      fbSt: { flexBasis: '100%', padding: '14px 18px', borderRadius: 10, fontSize: 16, background: last && last.ok ? K.greenT : K.pinkT, color: last && last.ok ? K.ok : K.bad },
+      onReset: () => this.setAct(b.id, x => { x.found = []; x.miss = []; x.last = null; x.done = false; })
+    };
+  }
+
+  vmSelf(b) {
+    const K = this.K, a = this.act(b.id), ans = a.ans || {}, compact = this.state.w < 640;
+    const labels = b.scale || [['Yes', 2], ['Sometimes', 1], ['Not yet', 0]], max = Math.max.apply(null, labels.map(l => l[1]));
+    const answered = Object.keys(ans).length, done = answered === b.items.length;
+    const score = Object.keys(ans).reduce((t, k) => t + ans[k], 0);
+    const bands = b.bands || [{ min: 0, label: '', text: '' }];
+    const bandI = bands.findIndex(x => score >= x.min);
+    const G = this.groupAvgs(b, ans);
+    const r = {
+      title: b.title, inst: b.inst, done, actSt: this.actBox(),
+      rowSt: { display: 'flex', flexDirection: compact ? 'column' : 'row', alignItems: compact ? 'stretch' : 'center', justifyContent: 'space-between', gap: compact ? 8 : 16, padding: '12px 16px', background: K.mist, borderRadius: 10 },
+      rows: b.items.map((t, i) => ({ text: typeof t === 'string' ? t : t.text, opts: labels.map(([l, v]) => { const on = ans[i] === v;
+        return { label: l, pressed: on ? 'true' : 'false', st: { border: 0, background: on ? K.navy : 'none', color: on ? '#FFFFFF' : K.slate, padding: '8px 14px', minHeight: 40, borderRadius: 999, cursor: 'pointer', fontWeight: 600, fontSize: 14.5 },
+          onClick: () => this.setAct(b.id, x => { x.ans = x.ans || {}; x.ans[i] = v; x.done = Object.keys(x.ans).length === b.items.length; }) }; }) })),
+      count: done ? 'All ' + b.items.length + ' answered' : answered + ' of ' + b.items.length + ' answered',
+      score: score + ' / ' + b.items.length * max,
+      band: done ? bands[bandI].label : '', bandText: done ? bands[bandI].text : '',
+      meter: bands.slice().reverse().map(x => { const on = done && x.label === bands[bandI].label;
+        return { label: x.label, st: { padding: 8, textAlign: 'center', borderRadius: 6, background: on ? K.navy : K.mist, color: on ? '#FFFFFF' : K.slate, fontSize: 14, fontWeight: 600 } }; })
+    };
+    if (G && done) {
+      const low = G.slice().sort((x, y) => x.avg - y.avg)[0];
+      r.band = 'Your lowest: ' + low.name; r.score = low.avg.toFixed(1) + ' / ' + max; r.bandText = low.tip;
+      r.meter = G.map(x => ({ label: x.name + ' ' + x.avg.toFixed(1), st: { padding: 8, textAlign: 'center', borderRadius: 6, background: x === low ? K.navy : K.mist, color: x === low ? '#FFFFFF' : K.slate, fontSize: 14, fontWeight: 600 } }));
+    }
+    return r;
+  }
+  groupAvgs(b, ans) {
+    if (!b.groups) return null;
+    return Object.keys(b.groups).map(g => { const v = b.items.map((t, i) => t.g === g ? ans[i] : null).filter(x => x != null);
+      return { g, name: b.groups[g].name, tip: b.groups[g].tip, avg: v.length ? v.reduce((a, c) => a + c, 0) / v.length : 0 }; });
+  }
+
+  vmProfile(b) {
+    const K = this.K, a = this.act(b.id), ans = a.ans || {}, i = Math.min(a.i || 0, b.items.length - 1), done = !!a.done, n = b.items.length;
+    const o = { title: b.title, inst: b.inst, kp: b.kp || [], done, running: !done, actSt: this.actBox(),
+      onReset: () => this.setAct(b.id, x => { x.ans = {}; x.i = 0; x.done = false; }) };
+    if (done) {
+      const c = {}; Object.keys(b.styles).forEach(k => c[k] = 0); Object.keys(ans).forEach(q => c[ans[q]]++);
+      const srt = Object.keys(c).sort((x, y) => c[y] - c[x]), top = b.styles[srt[0]], sec = b.styles[srt[1]], blend = c[srt[0]] - c[srt[1]] <= 1;
+      o.resKicker = 'Your executive communication style' + (blend ? ' (a blend: within 1 point)' : '');
+      o.resName = blend ? top.name + ' / ' + sec.name : top.name;
+      o.resMotto = '“' + top.motto + '”' + (blend ? '  ·  “' + sec.motto + '”' : '');
+      o.bars2 = Object.keys(b.styles).map(k => ({ name: b.styles[k].name, n: c[k], st: { display: 'block', height: '100%', borderRadius: 999, width: (c[k] / n * 100) + '%', background: (this.TONES[b.styles[k].tone] || this.TONES.cyan)[0] } }));
+      o.panels = [{ h: 'Strengths', text: top.strengths }, { h: 'How others may experience you', text: top.others }, { h: 'Your flex move', text: top.flex }];
+      o.blendNote = blend ? 'Your ' + top.name + ' and ' + sec.name + ' scores are within one point, so you have a blended style. Read both, and notice which one shows up under pressure.' : '';
+      return o;
+    }
+    const it = b.items[i];
+    o.progress = 'Situation ' + (i + 1) + ' of ' + n;
+    o.bars = b.items.map((x, k) => ({ st: { width: 9, height: 20, borderRadius: 2, transform: 'skewY(-26deg)', background: k < i ? K.teal : k === i ? K.navy : K.line } }));
+    o.sit = it.q;
+    o.opts = it.opts.map((p, k) => { const on = ans[i] === p[0];
+      let st = this.btn({ gap: 14, alignItems: 'flex-start', padding: '14px 16px' });
+      if (on) st = Object.assign(st, { borderColor: K.navy, background: K.mist });
+      return { letter: 'ABCD'[k], text: p[1], pressed: on ? 'true' : 'false', st, onClick: () => this.setAct(b.id, x => { x.ans = x.ans || {}; x.ans[i] = p[0]; }) }; });
+    const pill = (on, primary) => ({ display: 'inline-flex', alignItems: 'center', minHeight: 44, padding: '10px 20px', borderRadius: 999, fontWeight: 700, fontSize: 16, cursor: on ? 'pointer' : 'default', opacity: on ? 1 : .45, border: primary ? 0 : '2px solid ' + K.line, background: primary ? K.cyan : '#FFFFFF', color: K.navy });
+    o.prevDisabled = i === 0; o.prevSt = pill(i > 0, false);
+    o.nextDisabled = ans[i] == null; o.nextSt = pill(ans[i] != null, true);
+    o.nextLabel = i === n - 1 ? 'See my style' : 'Next';
+    o.onPrev = () => this.setAct(b.id, x => { x.i = Math.max(0, (x.i || 0) - 1); });
+    o.onNext = () => this.setAct(b.id, x => { if ((x.i || 0) < n - 1) x.i = (x.i || 0) + 1; else x.done = true; });
+    return o;
+  }
+
+  vmQuiz() {
+    const K = this.K, s = this.state.s, q = s.quiz, Q = this.C.quiz, sub = q.submitted, compact = this.state.w < 640;
+    return {
+      qs: Q.map((x, qi) => ({ n: qi + 1, q: x.q, name: 'q' + qi, locked: sub,
+        fb: sub ? (q.ans[qi] === x.a ? 'Correct. ' : 'Not quite. ') + x.fb : '',
+        fbSt: { margin: compact ? '4px 0 0' : '4px 0 0 40px', padding: '12px 16px', borderRadius: 10, fontSize: 15.5, background: q.ans[qi] === x.a ? K.greenT : K.pinkT, color: q.ans[qi] === x.a ? K.ok : K.bad },
+        opts: x.o.map((t, oi) => { const ch = q.ans[qi] === oi;
+          let st = { display: 'flex', gap: 12, alignItems: 'flex-start', padding: '11px 14px', border: '2px solid ' + K.line, borderRadius: 10, margin: compact ? '0 0 8px' : '0 0 8px 40px', cursor: sub ? 'default' : 'pointer', background: '#FFFFFF' };
+          if (ch) st = Object.assign(st, { borderColor: K.navy, background: K.mist });
+          if (sub && oi === x.a) st = Object.assign(st, { borderColor: K.green, background: K.greenT });
+          else if (sub && ch) st = Object.assign(st, { borderColor: K.pink, background: K.pinkT });
+          return { text: t, checked: ch, st, onChange: () => { if (sub) return; this.setState({ quizErr: '' }); this.upd(z => { z.quiz.ans[qi] = oi; }); } }; }) })),
+      canSubmit: !sub, submitted: sub, err: this.state.quizErr,
+      onSubmit: () => {
+        const n = Object.keys(q.ans).length;
+        if (n < Q.length) { this.setState({ quizErr: 'Please answer all ' + Q.length + ' questions. ' + (Q.length - n) + ' still to go.' }); return; }
+        this.upd(z => { const c = Q.filter((x, i) => z.quiz.ans[i] === x.a).length; z.quiz.score = Math.round(c / Q.length * 100); z.quiz.submitted = true; z.quiz.best = Math.max(z.quiz.best || 0, z.quiz.score); });
+      },
+      onRetake: () => { this.upd(z => { z.quiz.ans = {}; z.quiz.submitted = false; }); try { window.scrollTo(0, 0); } catch (e) {} },
+      score: sub ? q.score + '%' : '',
+      scoreText: sub ? (q.score >= this.C.passMark ? 'You passed. Your best score is ' + q.best + '%. Continue to Results and Certificate.' : 'You need ' + this.C.passMark + '% to pass. Review the feedback above, then retake the check.') : '',
+      scoreSt: { flexBasis: '100%', padding: '14px 18px', borderRadius: 10, background: sub && q.score >= this.C.passMark ? K.greenT : K.amberT, color: sub && q.score >= this.C.passMark ? K.ok : K.amberInk }
+    };
+  }
+
+  vmResults() {
+    const K = this.K, s = this.state.s, mods = this.contentMods(), un = this.unlocked(s);
+    const doneMods = mods.filter(m => this.modProg(s, m) >= 1).length;
+    const ckItem = (ok, text, go) => ({ text, showGo: !ok && !!go, go, tick: ok ? '✓' : '',
+      st: { display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px', borderRadius: 10, background: ok ? K.greenT : K.mist, color: K.ink },
+      ck: ok ? { flex: 'none', width: 22, height: 22, borderRadius: '50%', background: K.green, color: K.navy, display: 'grid', placeItems: 'center', fontWeight: 700, fontSize: 13 } : { flex: 'none', width: 22, height: 22, borderRadius: '50%', border: '2px solid ' + K.muted } });
+    const checks = [ckItem(!!s.name, s.name ? 'Name for your certificate: ' + s.name : 'Enter your name for the certificate', () => this.go('welcome', 0))];
+    mods.filter(m => m !== 'welcome').forEach(m => { const ok = this.modProg(s, m) >= 1;
+      const firstOpen = () => { const p = this.C.modules[m].pages.findIndex((x, i) => (s.seen[m] || []).indexOf(i) < 0); this.go(m, p < 0 ? 0 : p); };
+      checks.push(ckItem(ok, 'Complete: ' + this.C.modules[m].title, firstOpen)); });
+    checks.push(ckItem(s.quiz.best >= this.C.passMark, 'Pass the final check (' + this.C.passMark + '%)' + (s.quiz.best ? ' · best so far ' + s.quiz.best + '%' : ''), () => this.go('final', 0)));
+    return {
+      stats: [{ v: s.quiz.best ? s.quiz.best + '%' : '–', l: 'Best final check score' }, { v: this.fmtTime(s.time), l: 'Time invested' }, { v: doneMods + ' / ' + mods.length, l: 'Modules completed' }],
+      checks, cert: un ? this.state.cert : null,
+      certImg: { src: un && this.state.cert ? this.state.cert : undefined },
+      certLink: { href: un && this.state.cert ? this.state.cert : undefined },
+      certText: un ? 'Congratulations, ' + s.name + '. Download your certificate and a PDF of everything you wrote and scored in this course.' : 'Your certificate unlocks when every item above is ticked. You can download a PDF of your answers at any time.',
+      onReport: () => this.report()
+    };
+  }
+
+  // ---------- outputs ----------
+  async makeCert(sig) {
+    this._gen = true;
+    const s = this.state.s;
+    const load = src => new Promise(r => { const i = new Image(); i.onload = () => r(i); i.onerror = () => r(null); i.src = src; });
+    try { await Promise.all([document.fonts.load('700 60px "Proxima Nova"'), document.fonts.load('400 30px "Proxima Nova"'), document.fonts.load('600 30px "Proxima Nova"')]); } catch (e) {}
+    const [logo, mark] = await Promise.all([load('assets/logo-dark.png'), load('assets/mark-outline.png')]);
+    const W = 2000, H = 1414, c = document.createElement('canvas'); c.width = W; c.height = H;
+    const x = c.getContext('2d'), F = '"Proxima Nova","Helvetica Neue",Arial,sans-serif';
+    x.fillStyle = '#FFFFFF'; x.fillRect(0, 0, W, H);
+    x.fillStyle = '#0B1E3A'; x.fillRect(0, 0, W, 28); x.fillRect(0, H - 28, W, 28);
+    const g = x.createLinearGradient(0, 0, W, 0); g.addColorStop(0, '#2DD4C8'); g.addColorStop(1, '#05B4E0');
+    x.fillStyle = g; x.fillRect(0, 28, W, 10);
+    if (mark) { x.globalAlpha = .9; const mh = 900, mw = mh * mark.width / mark.height; x.drawImage(mark, W - mw - 90, H - mh - 140, mw, mh); x.globalAlpha = 1; }
+    if (logo) { const lw = 520, lh = lw * logo.height / logo.width; x.drawImage(logo, 120, 110, lw, lh); }
+    x.textBaseline = 'alphabetic';
+    x.fillStyle = '#0279A0'; x.font = '600 34px ' + F; x.fillText('CERTIFICATE OF COMPLETION', 160, 470);
+    x.fillStyle = '#5B6B80'; x.font = '400 38px ' + F; x.fillText('This certifies that', 160, 560);
+    x.fillStyle = '#0B1E3A'; let fs = 112; x.font = '700 ' + fs + 'px ' + F;
+    while (x.measureText(s.name).width > 1250 && fs > 60) { fs -= 4; x.font = '700 ' + fs + 'px ' + F; }
+    x.fillText(s.name, 160, 690);
+    x.fillStyle = g; x.fillRect(160, 730, 220, 8);
+    x.fillStyle = '#5B6B80'; x.font = '400 38px ' + F; x.fillText('has successfully completed the self-paced course', 160, 830);
+    x.fillStyle = '#0B1E3A'; x.font = '700 64px ' + F; (this.C.certLines || [this.C.title]).forEach((t, i) => x.fillText(t, 160, 920 + 75 * i));
+    x.fillStyle = '#5B6B80'; x.font = '600 32px ' + F; x.fillText(this.C.certSub || '', 160, 1055);
+    const d = new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
+    const cols = [['Date', d], ['Final check', s.quiz.best + '%'], ['Time invested', this.fmtTime(s.time)]];
+    cols.forEach((cc, i) => { const cx = 160 + i * 400; x.fillStyle = '#8A97A8'; x.font = '600 28px ' + F; x.fillText(cc[0], cx, 1220); x.fillStyle = '#0B1E3A'; x.font = '700 38px ' + F; x.fillText(cc[1], cx, 1272); });
+    this._certSig = sig; this._gen = false;
+    this.setState({ cert: c.toDataURL('image/png') });
+  }
+
+  report() {
+    const s = this.state.s, C = this.C, esc = t => String(t == null ? '' : t).replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[m]));
+    let h = '<!doctype html><html><head><meta charset="utf-8"><title>My answers · ' + esc(C.title) + '</title><style>body{font-family:"Helvetica Neue",Arial,sans-serif;color:#0B1E3A;max-width:760px;margin:30px auto;padding:0 20px;font-size:11pt;line-height:1.5}h1{font-size:20pt;margin:0 0 4px}h2{font-size:13pt;margin-top:22pt;border-top:1px solid #ccc;padding-top:8pt}h3{font-size:11pt;margin:10pt 0 2pt}p{margin:0 0 4pt}.q{color:#5B6B80;font-style:italic}img{width:220px;margin-bottom:12px}</style></head><body>';
+    h += '<img src="' + location.href.replace(/[^/]*$/, '') + 'assets/logo-dark.png" alt="HealthRecon Connect"><h1>' + esc(C.title) + '</h1>';
+    h += '<p><strong>Name:</strong> ' + esc(s.name || '(not entered)') + '<br><strong>Line of business:</strong> ' + esc(this.lobName()) + '<br><strong>Date:</strong> ' + new Date().toLocaleDateString('en-GB') + '<br><strong>Time invested:</strong> ' + this.fmtTime(s.time) + '<br><strong>Best final check score:</strong> ' + (s.quiz.best || 0) + '% (pass mark ' + C.passMark + '%)</p>';
+    this.order().forEach(m => {
+      const mod = C.modules[m]; let part = '';
+      mod.pages.forEach(pg => pg.forEach(b0 => { const b = this.eff(b0);
+        if (b.t === 'reflect') part += '<h3>' + esc(b.label) + '</h3><p>' + (s.refl[b.id] ? esc(s.refl[b.id]).replace(/\n/g, '<br>') : '<span class="q">No answer saved.</span>') + '</p>';
+        if (b.t === 'poll' && s.poll != null) part += '<h3>' + esc(b.q) + '</h3><p>' + esc(b.opts[s.poll].title) + '</p>';
+        if (b.t === 'av' && b.ask) { const a = s.acts[b.id] || {}; part += '<h3>' + esc(b.title) + ': ' + esc(b.ask.q) + '</h3><p>' + (a.askPick != null ? esc(b.ask.opts[a.askPick].text) : '<span class="q">Not answered.</span>') + '</p>'; }
+        if (['buckets', 'seq', 'sim', 'hunt'].indexOf(b.t) >= 0) part += '<h3>Activity: ' + esc(b.title) + '</h3><p>' + (this.actDone(s, b.id) ? 'Completed' : 'Not completed') + '</p>';
+        if (b.t === 'selfcheck') { const a = s.acts[b.id] || {}, sc = Object.keys(a.ans || {}).reduce((t, k) => t + a.ans[k], 0); const mx = b.scale ? Math.max.apply(null, b.scale.map(l => l[1])) : 2, G = this.groupAvgs(b, a.ans || {}); part += '<h3>' + esc(b.title) + '</h3><p>' + (a.done ? (G ? G.map(g => esc(g.name) + ' ' + g.avg.toFixed(1) + ' / ' + mx).join(' · ') : 'Score ' + sc + ' / ' + b.items.length * mx) : 'Not completed') + '</p>'; }
+        if (b.t === 'profile') { const a = s.acts[b.id] || {}, c = {}; Object.values(a.ans || {}).forEach(k => c[k] = (c[k] || 0) + 1); const top = Object.keys(c).sort((x, y) => c[y] - c[x])[0]; part += '<h3>' + esc(b.title) + '</h3><p>' + (a.done && top ? esc(b.styles[top].name) + ' (' + Object.keys(b.styles).map(k => esc(b.styles[k].name) + ' ' + (c[k] || 0)).join(', ') + ')' : 'Not completed') + '</p>'; }
+      }));
+      if (part) h += '<h2>' + esc(mod.title) + '</h2>' + part;
+    });
+    h += '</body></html>';
+    const w = window.open('', '_blank');
+    if (w) { w.document.write(h); w.document.close(); setTimeout(() => { try { w.focus(); w.print(); } catch (e) {} }, 500); }
+    else { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([h], { type: 'text/html' })); a.download = 'Communicating-Performance-My-Answers.html'; a.click(); }
+  }
+
+  // ---------- render ----------
+  renderVals() {
+    const s = this.state.s, w = this.state.w, narrow = w < 900, compact = w < 640, K = this.K;
+    const toggleNav = () => this.setState(st => ({ navOpen: !st.navOpen }));
+    const sidebarStyle = { position: 'fixed', top: 0, bottom: 0, left: 0, width: 292, background: K.navy, color: '#C9D6E4', display: 'flex', flexDirection: 'column', zIndex: 40, overflowY: 'auto',
+      transform: narrow && !this.state.navOpen ? 'translateX(-100%)' : 'none', transition: 'transform .25s ease', boxShadow: narrow && this.state.navOpen ? '8px 0 30px rgba(0,0,0,.25)' : 'none' };
+    const mainStyle = { marginLeft: narrow ? 0 : 292, minHeight: '100vh', padding: compact ? '0 0 40px' : narrow ? '28px 22px 60px' : (w < 1100 ? '28px 22px 60px' : '40px 40px 80px') };
+    const padX = compact ? 18 : w < 1100 ? 36 : 56, padT = compact ? 26 : w < 1100 ? 36 : 44;
+    const pageStyle = { maxWidth: 880, margin: '0 auto', background: '#FFFFFF', borderRadius: compact ? 0 : 16, padding: padT + 'px ' + padX + 'px ' + (compact ? 22 : 36) + 'px', boxShadow: compact ? 'none' : '0 1px 2px rgba(11,30,58,.06), 0 8px 30px rgba(11,30,58,.05)', overflow: 'hidden' };
+    const base = { narrow, showScrim: narrow && this.state.navOpen, toggleNav, sidebarStyle, mainStyle, pageStyle };
+    if (!s || !this.C) return Object.assign(base, { groups: [], blocks: [], progressLabel: '0%', meterStyle: {}, timeLabel: 'under 1 min', h1: '', notHero: true });
+    const C = this.C, mod = C.modules[s.cur], o = this.order(), mi = o.indexOf(s.cur);
+
+    const groups = C.groups.map(g => ({ label: g.label, items: g.mods.map(m => {
+      const p = this.modProg(s, m), done = p >= 1, cur = m === s.cur;
+      return { title: C.modules[m].title, tag: done ? 'Completed' : C.modules[m].mins + ' min',
+        tagSt: { fontSize: 12, fontWeight: 600, color: done ? K.teal : K.muted },
+        st: { display: 'flex', alignItems: 'center', gap: 14, width: '100%', padding: '9px 12px', borderRadius: 6, border: 0, textAlign: 'left', cursor: 'pointer', color: cur ? '#FFFFFF' : '#DCE6F0', background: cur ? 'rgba(5,180,224,.16)' : 'transparent', fontSize: 15.5, lineHeight: 1.25 },
+        bar: { flex: 'none', width: 11, height: 24, borderRadius: 3, transform: 'skewY(-26deg)', background: done ? K.grad : 'linear-gradient(to top, ' + K.teal + ' ' + Math.round(p * 100) + '%, rgba(255,255,255,.16) ' + Math.round(p * 100) + '%)' },
+        go: () => this.go(m, 0) }; }) }));
+    const all = o.filter(m => m !== 'results');
+    const pct = Math.round(all.reduce((t, m) => t + this.modProg(s, m), 0) / all.length * 100);
+
+    const blocks = mod.pages[s.page].map((b, i) => this.vm(b, s.cur + '-' + s.page + '-' + i));
+    const nPages = mod.pages.length, isLastPage = s.page === nPages - 1;
+    const nextMod = isLastPage ? o[mi + 1] : null;
+    const group = C.groups.find(g => g.mods.indexOf(s.cur) >= 0);
+    const heroPad = compact ? '34px 18px 104px' : w < 1100 ? '44px 36px 40px' : '54px 56px 46px';
+    return Object.assign(base, {
+      groups, progressLabel: pct + '%', timeLabel: this.fmtTime(s.time),
+      meterStyle: { display: 'block', height: '100%', width: pct + '%', background: K.grad, transition: 'width .4s ease' },
+      reset: () => { if (!window.confirm('Reset all your progress, answers and reflections in this course? This cannot be undone.')) return;
+        try { localStorage.removeItem(C.storeKey); } catch (e) {}
+        const ns = this.blank(); this.markSeen(ns, 'welcome', 0); this._certSig = null;
+        this.setState({ s: ns, drafts: {}, rstat: {}, sel: {}, flips: {}, cert: null, nameDraft: null, nameStat: '', navOpen: false }, () => this.persist()); try { window.scrollTo(0, 0); } catch (e) {} },
+      isHero: !!mod.hero, notHero: !mod.hero,
+      heroStyle: { position: 'relative', background: K.navy, color: '#C9D6E4', margin: '-' + padT + 'px -' + padX + 'px 32px', padding: heroPad, borderRadius: compact ? 0 : '16px 16px 0 0', overflow: 'hidden' },
+      heroH1: { color: '#FFFFFF', fontSize: 'clamp(34px,5vw,54px)', maxWidth: compact ? 'none' : 'min(11.5em, calc(100% - 170px))', lineHeight: 1.05, margin: 0, position: 'relative', fontWeight: 700, letterSpacing: '-.01em' },
+      markStyle: compact ? { position: 'absolute', right: -30, bottom: -96, height: 190, width: 'auto', pointerEvents: 'none', opacity: .3 } : { position: 'absolute', right: w < 1100 ? -56 : -36, top: 26, height: w < 1100 ? 280 : 330, width: 'auto', pointerEvents: 'none', opacity: .3 },
+      kicker: C.kicker, h1: mod.hero ? C.title : mod.title,
+      crumb: group.label + (nPages > 1 ? ' · Page ' + (s.page + 1) + ' of ' + nPages : ''),
+      hasDots: nPages > 1,
+      dots: mod.pages.map((x, i) => { const seen = (s.seen[s.cur] || []).indexOf(i) >= 0, cur = i === s.page;
+        return { label: 'Page ' + (i + 1), go: () => this.go(s.cur, i), st: { display: 'block', width: 10, height: 22, padding: 0, border: 0, cursor: 'pointer', borderRadius: 3, transform: 'skewY(-26deg)', background: cur ? K.grad : seen ? '#9ADFEE' : K.line } }; }),
+      blocks,
+      hasPrev: s.page > 0 || mi > 0, prev: () => this.step(-1),
+      hasNext: !isLastPage || mi < o.length - 1, next: () => this.step(1),
+      nextLabel: !isLastPage ? 'Continue →' : nextMod ? (s.cur === 'welcome' ? 'Start the course →' : 'Next: ' + C.modules[nextMod].title + ' →') : '',
+      footNote: compact ? '' : (nPages > 1 ? 'Page ' + (s.page + 1) + ' of ' + nPages : '')
+    });
+  }
+}
+</script>
+</body>
+</html>
